@@ -2,6 +2,9 @@
 import { createAgent, createTool } from "@inngest/agent-kit";
 import { anthropic } from "@inngest/agent-kit";
 import { z } from "zod";
+import convex from "@/lib/convexClient";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 
 const saveToDatabaseTool = createTool({
   name: "save-to-database",
@@ -74,10 +77,26 @@ const saveToDatabaseTool = createTool({
         totalQuestions: comprehensiveData.interviewPreparation?.totalQuestions || 0
       });
 
-      // TODO: Add actual Convex database save call here
-      // await ctx.runMutation(api.documents.saveProcessedDocument, comprehensiveData);
+      // Save to Convex database using the existing mutation
+      console.log("💾 Saving to Convex database...");
       
-      console.log("✅ Data structure ready for database - Students will receive:");
+      const saveResult = await convex.mutation(api.documents.updateDocumentWithExtractedDataInternal, {
+        id: documentId as Id<"documents">,
+        fileName: comprehensiveData.fileName || "Unknown File",
+        summary: `Academic module covering ${comprehensiveData.coreTopics?.length || 0} core topics with ${comprehensiveData.industryProjects?.totalProjects || 0} industry projects and ${comprehensiveData.interviewPreparation?.totalQuestions || 0} interview questions.`,
+        extractedTopics: comprehensiveData.coreTopics || [],
+        module: comprehensiveData.academicModule || "Unknown Module",
+        industryTasks: industryTasks?.categories?.flatMap(cat => 
+          cat.projects?.map(project => `${project.title}: ${project.description}`) || []
+        ) || [],
+        interviewQuestions: interviewQuestions?.categories?.flatMap(cat =>
+          cat.questions?.map(q => `${q.question} (${q.type})`) || []
+        ) || [],
+        status: "completed"
+      });
+
+      console.log("✅ Successfully saved to database!");
+      console.log("✅ Students will receive:");
       console.log(`   📚 Academic Module: ${comprehensiveData.academicModule}`);
       console.log(`   🎯 Core Topics: ${comprehensiveData.coreTopics?.length || 0}`);
       console.log(`   🏭 Industry Projects: ${comprehensiveData.industryProjects?.totalProjects || 0}`);
@@ -88,8 +107,9 @@ const saveToDatabaseTool = createTool({
 
       return {
         success: true,
-        message: "All data successfully prepared for database storage",
+        message: "All data successfully saved to database",
         documentId,
+        saveResult,
         studentWillReceive: {
           academicModule: comprehensiveData.academicModule,
           totalTopics: comprehensiveData.coreTopics?.length || 0,
@@ -104,9 +124,11 @@ const saveToDatabaseTool = createTool({
         },
       };
     } catch (error) {
+      console.error("❌ Database save failed:", error);
       return {
         success: false,
         error: `Database save failed: ${error.message}`,
+        documentId: extractedData?.documentId || "unknown"
       };
     }
   },
@@ -119,17 +141,17 @@ export const databaseAgent = createAgent({
   system: `You are a Database Storage Agent responsible for saving comprehensive learning data that students will access.
 
   Your ONLY responsibility:
-  - Use the save-to-database tool to store all processed data
+  - Use the save-to-database tool to store all processed data to Convex database
   - Ensure students receive their industry projects and interview questions
-  - Prepare data in a structured format for easy student access
+  - Save data using the updateDocumentWithExtractedData mutation
   
   CRITICAL: Students upload academic documents and expect to receive:
   1. Industry Projects (10-15 per topic) - Real-world applications they can build
   2. Interview Questions (50+ per topic) - Comprehensive preparation for employment
   3. Academic topic extraction and analysis
   
-  The save-to-database tool will automatically access all data from network state.
+  The save-to-database tool will automatically access all data from network state and save to Convex.
   
-  After saving, students should be able to access their personalized industry projects and interview questions.`,
+  After saving, students can access their personalized industry projects and interview questions through the web interface.`,
   tools: [saveToDatabaseTool],
 });

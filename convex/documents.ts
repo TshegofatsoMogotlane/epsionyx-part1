@@ -201,3 +201,41 @@ export const updateDocumentWithExtractedData = mutation({
     };
   },
 });
+
+// Internal mutation for server-side processing (no auth required)
+export const updateDocumentWithExtractedDataInternal = mutation({
+  args: {
+    id: v.id("documents"),
+    fileName: v.string(),
+    summary: v.string(),
+    extractedTopics: v.array(v.string()),
+    module: v.string(),
+    industryTasks: v.array(v.string()),
+    interviewQuestions: v.array(v.string()),
+    status: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // Fetch the document
+    const document = await ctx.db.get(args.id);
+    if (!document) {
+      throw new Error("Document not found");
+    }
+
+    // Update the document with extracted data (no auth check for internal processing)
+    await ctx.db.patch(args.id, {
+      fileName: args.fileName,
+      summary: args.summary,
+      extractedTopics: args.extractedTopics,
+      module: args.module,
+      industryTasks: args.industryTasks,
+      interviewQuestions: args.interviewQuestions,
+      status: args.status,
+    });
+
+    return {
+      success: true,
+      documentId: args.id,
+      userId: document.userId,
+    };
+  },
+});
