@@ -4,7 +4,7 @@ import React from 'react'
 import { Button } from './ui/button'
 import Link from 'next/link'
 import { BrainCircuit, Sparkles, GraduationCap } from 'lucide-react'
-import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
+import { SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
 import { usePathname } from 'next/navigation'
 import AnimatedColorfulLogo from './animated-colorful-logo'
 import MyUploadsButtonGlass from './my-uploads-button-glass'
@@ -69,7 +69,7 @@ const Header = () => {
                         </SignedIn>
 
                         <SignedOut>
-                            <SignInButton mode='modal'>
+                            <Link href="/sign-up">
                                 <Button
                                     size="lg"
                                     className="relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 group px-8"
@@ -80,7 +80,7 @@ const Header = () => {
                                     </span>
                                     <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 </Button>
-                            </SignInButton>
+                            </Link>
                         </SignedOut>
                     </nav>
                 </div>
