@@ -1,0 +1,10 @@
+import fetch from "node-fetch";
+
+const res = await fetch("https://api.anthropic.com/v1/models", {
+  headers: {
+    "x-api-key": process.env.ANTHROPIC_API_KEY,
+    "anthropic-version": "2023-06-01",
+  },
+});
+const data = await res.json();
+console.log(data);
