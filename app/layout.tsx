@@ -5,6 +5,7 @@ import ConvexClientProvider from "@/components/ConvexClientProvider";
 import { ClerkProvider } from "@clerk/nextjs";
 import { clerkConfig } from "./clerk-config";
 import Header from "@/components/Header";
+import VAPIFloatingAssistant from "@/components/VAPIFloatingAssistant";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,6 +45,7 @@ export default function RootLayout({
           <ConvexClientProvider>
             <Header/>
             <main>{children}</main>
+            <VAPIFloatingAssistant />
           </ConvexClientProvider>
         </ClerkProvider>
       </body>

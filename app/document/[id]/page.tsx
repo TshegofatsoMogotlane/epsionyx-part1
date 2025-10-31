@@ -8,6 +8,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { BookOpen, Briefcase, MessageSquare, FileText, Clock, Target } from "lucide-react"
+import VAPIInterviewCoach from "@/components/VAPIInterviewCoach"
+import VAPIDebugTest from "@/components/VAPIDebugTest"
+import VAPISimpleTest from "@/components/VAPISimpleTest"
 
 const Document = () => {
     const params = useParams<{id: string}>()
@@ -119,6 +122,22 @@ const Document = () => {
               </div>
             </CardContent>
           </Card>
+        )}
+
+        {/* VAPI Debug Test - Remove this after testing */}
+        <VAPIDebugTest />
+        
+        {/* VAPI Simple Test - More detailed debugging */}
+        <VAPISimpleTest />
+
+        {/* VAPI Interview Coach */}
+        {document.interviewQuestions && document.interviewQuestions.length > 0 && (
+          <VAPIInterviewCoach
+            interviewQuestions={document.interviewQuestions}
+            topic={document.module || "General"}
+            onSessionStart={() => console.log('Interview practice started')}
+            onSessionEnd={() => console.log('Interview practice ended')}
+          />
         )}
 
         {/* Empty State */}
