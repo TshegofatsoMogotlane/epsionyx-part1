@@ -3,174 +3,169 @@
 import React, { useState } from 'react'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
-import { Badge } from './ui/badge'
-import { Mic, MicOff, Phone, PhoneOff, GraduationCap } from 'lucide-react'
-import { useVAPI } from '@/hooks/useVAPI'
+import VAPIFloatingAssistant from './VAPIFloatingAssistant'
 
 const VAPIEpsonyxTest = () => {
-  const [selectedAssistant, setSelectedAssistant] = useState<'interviewCoach' | 'studyBuddy' | 'careerCoach'>('interviewCoach')
+  const [showAssistant, setShowAssistant] = useState(false)
 
-  // Sample interview questions for testing
-  const sampleQuestions = [
-    "Tell me about a challenging project you worked on during your studies and how you overcame obstacles.",
-    "How would you apply the theoretical concepts you've learned to solve real-world problems in this industry?",
-    "Describe a time when you had to learn a new technology or concept quickly. How did you approach it?",
-    "What academic project are you most proud of and why?",
-    "How do you stay updated with industry trends related to your field of study?"
+  // Sample data for high school students choosing university degrees
+  const sampleInterviewQuestions = [
+    "Tell me about your academic interests and what subjects you enjoy most",
+    "What career goals do you have after university?",
+    "Why are you interested in this particular field of study?",
+    "How do you see yourself using this degree in the real world?",
+    "What skills do you hope to develop during your university studies?",
+    "Can you describe a project or achievement you're proud of?",
+    "How do you handle challenges and setbacks in your studies?",
+    "What makes you passionate about this field?",
+    "Where do you see yourself in 5-10 years after graduation?",
+    "How would you explain your chosen field to someone who knows nothing about it?"
   ]
 
-  const {
-    isConnected,
-    isLoading,
-    isSpeaking,
-    error,
-    formattedDuration,
-    startCall,
-    endCall,
-    clearError
-  } = useVAPI({
-    assistantType: selectedAssistant,
-    topic: 'Software Engineering',
-    interviewQuestions: sampleQuestions,
-    context: 'Computer Science student preparing for software engineering interviews',
-    onCallStart: () => {
-      console.log('✅ Epsionyx assistant call started')
-    },
-    onCallEnd: () => {
-      console.log('✅ Epsionyx assistant call ended')
-    },
-    onError: (err) => {
-      console.error('❌ Epsionyx assistant error:', err)
-    }
-  })
+  const sampleIndustryTasks = [
+    "Design a mobile app prototype for student productivity",
+    "Create a business plan for a sustainable startup",
+    "Analyze market trends in renewable energy",
+    "Develop a marketing campaign for a local business",
+    "Build a simple website using modern web technologies",
+    "Research and present on emerging technologies in your field",
+    "Create a data visualization project using real datasets",
+    "Design an engineering solution to a community problem",
+    "Write and produce a short documentary on a social issue",
+    "Develop a financial model for a small business"
+  ]
 
   return (
-    <Card className="w-full max-w-lg mx-auto">
-      <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50">
-        <CardTitle className="flex items-center gap-2 text-blue-800">
-          <GraduationCap className="h-5 w-5" />
-          Epsionyx AI Assistant Test
-        </CardTitle>
-        <p className="text-sm text-blue-600">
-          Testing educational AI assistants with correct Epsionyx prompts
-        </p>
-      </CardHeader>
-      
-      <CardContent className="space-y-4 pt-4">
-        {/* Assistant Selection */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Choose Assistant Type:</label>
-          <div className="flex gap-2 flex-wrap">
-            {(['interviewCoach', 'studyBuddy', 'careerCoach'] as const).map((type) => (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-6">
+      <div className="max-w-4xl mx-auto space-y-6">
+        {/* Header */}
+        <Card className="bg-white/80 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="text-2xl text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Epsionyx - University Degree Selection Assistant
+            </CardTitle>
+            <p className="text-center text-gray-600">
+              AI-powered guidance to help high school students choose the perfect university degree
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="font-semibold text-lg mb-3 text-blue-800">🎓 What We Help With:</h3>
+                <ul className="space-y-2 text-sm text-gray-700">
+                  <li>• Explore different university degree options</li>
+                  <li>• Understand career prospects for each field</li>
+                  <li>• Practice interview questions for your chosen field</li>
+                  <li>• Discover real-world industry tasks and projects</li>
+                  <li>• Get personalized guidance based on your interests</li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg mb-3 text-purple-800">🚀 Available Resources:</h3>
+                <div className="space-y-2 text-sm text-gray-700">
+                  <div className="flex justify-between">
+                    <span>Interview Questions:</span>
+                    <span className="font-medium text-blue-600">{sampleInterviewQuestions.length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Industry Tasks:</span>
+                    <span className="font-medium text-purple-600">{sampleIndustryTasks.length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>AI Assistants:</span>
+                    <span className="font-medium text-green-600">3 specialized</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-center pt-4">
               <Button
-                key={type}
-                variant={selectedAssistant === type ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setSelectedAssistant(type)}
-                disabled={isConnected}
+                onClick={() => setShowAssistant(!showAssistant)}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg"
               >
-                {type === 'interviewCoach' && '🎤 Interview'}
-                {type === 'studyBuddy' && '📚 Study'}
-                {type === 'careerCoach' && '💼 Career'}
+                {showAssistant ? 'Hide' : 'Launch'} AI Assistant
               </Button>
-            ))}
-      xTestPIEpsonyult VAport defa
+            </div>
+          </CardContent>
+        </Card>
 
-ex)
-}>
-  ard
-    </Content></CardC    v>
-          </dis</div>
-ed logil detaforser console eck browv>📝 Ch       <di>
-   ess</divone acc microph to allowke surev>🎤 Ma      <di   </div>
- promptsucational yx edt Epsionhe correc will test tdiv>🎯 This     <">
-     0 space-y-1gray-50xt-xs text-"te className=<div}
-        tructions */  {/* Ins
+        {/* Sample Questions Preview */}
+        <div className="grid md:grid-cols-2 gap-6">
+          <Card className="bg-white/60 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-lg text-blue-800">📝 Sample Interview Questions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2 max-h-60 overflow-y-auto">
+                {sampleInterviewQuestions.slice(0, 5).map((question, index) => (
+                  <div key={index} className="p-2 bg-blue-50 rounded text-sm">
+                    <span className="font-medium text-blue-600">Q{index + 1}:</span> {question}
+                  </div>
+                ))}
+                <div className="text-xs text-gray-500 text-center pt-2">
+                  ...and {sampleInterviewQuestions.length - 5} more questions
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-       </div>}
-                 ) </Button>
+          <Card className="bg-white/60 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-lg text-purple-800">🛠️ Sample Industry Tasks</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2 max-h-60 overflow-y-auto">
+                {sampleIndustryTasks.slice(0, 5).map((task, index) => (
+                  <div key={index} className="p-2 bg-purple-50 rounded text-sm">
+                    <span className="font-medium text-purple-600">Task {index + 1}:</span> {task}
+                  </div>
+                ))}
+                <div className="text-xs text-gray-500 text-center pt-2">
+                  ...and {sampleIndustryTasks.length - 5} more tasks
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-           d Session        En>
-      -2" /mre="h-4 w-4 Nam classhoneOff       <P        >
-    "
-       w-fullclassName="             
- tructive""desnt=  varia    l}
-        dCalk={ennClic           on
-       <Butto    (
-            ) : >
-  </Button                  )}
-     </>
-             }
-      er Coaching'' : 'Careonssitudy Se? 'Sdy' yBudstud== 'sistant =As' : selected? 'InterviewrviewCoach'  === 'intetantelectedAssis{sonyx Epsit Star             " />
-     4 w-4 mr-2h-e="ssNamone claPh      <               <>
-             ) : (
-         
-              </>    ing...
-   onnect      C  
-          r-2"></div> marent-transpr-t bordeteer-whi-2 bord-4 border h-4 wounded-fulln rate-spiName="animssiv cla         <d
-                 <>(
-        ading ?     {isLo        
-        >
-      rple-700"er:to-pulue-700 hov-bover:fromle-600 hrpe-600 to-pum-blur frot-to--gradienfull bg="w-   className          sLoading}
- d={iable         disll}
-     ick={startCa onCl        
-          <Button
-        (ed ?Connect     {!is-2">
-     -yspaceme=" classNa<div}
-         Buttons */ntrol  {/* Co   
+        {/* Instructions */}
+        <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
+          <CardContent className="pt-6">
+            <h3 className="font-semibold text-lg mb-3 text-green-800">🎯 How to Use the AI Assistant:</h3>
+            <div className="grid md:grid-cols-3 gap-4 text-sm">
+              <div className="space-y-2">
+                <div className="font-medium text-blue-600">1. Degree Guide Mode</div>
+                <div className="text-gray-700">Ask about different university degrees, career prospects, and which programs match your interests.</div>
+              </div>
+              <div className="space-y-2">
+                <div className="font-medium text-green-600">2. Interview Coach Mode</div>
+                <div className="text-gray-700">Practice answering interview questions for your chosen field and get feedback on your responses.</div>
+              </div>
+              <div className="space-y-2">
+                <div className="font-medium text-purple-600">3. Career Explorer Mode</div>
+                <div className="text-gray-700">Explore real-world industry tasks and learn how to build projects that showcase your skills.</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-    )}   >
-    div  </
-        iv>     </d
-       stions...1} more ques.length - Question{sample  +            0 mt-1">
-text-blue-50-xs xte="tev classNam  <di       /div>
-       <"
-        tions[0]}Ques   "{sample      00">
-     text-blue-6text-xs "sName=<div clas         
-   div></        Ready:
-     Questions       Sample  
-      -2">blue-800 mbdium text-ont-mext-sm fe="teamdiv classN   <        ">
- gd-lue-50 roundeblbg-="p-3 meclassNa       <div d && (
-   necteCon&& !isrviewCoach'  === 'inteedAssistantect {sel       review */}
-ns Pe Questio   {/* Sampl  
+      {/* Floating Assistant */}
+      {showAssistant && (
+        <VAPIFloatingAssistant
+          userContext={{
+            currentPage: '/degree-selection',
+            documentCount: 0,
+            currentDocument: 'University Degree Guide'
+          }}
+          interviewQuestions={sampleInterviewQuestions}
+          industryTasks={sampleIndustryTasks}
+          topic="University Degree Selection"
+        />
+      )}
+    </div>
+  )
+}
 
-   }       )v>
-    </di      div>
-   </         Button>
- }>×</clearErrorck={" onCli size="sm"ghost"iant=tton var<Bu             /div>
-            <>
-   r}</divroerred-600">{ext-m t="text-sameclassN    <div   
-          r:</div>00">Errom text-red-8ont-mediu="text-sm fName class      <div     >
-     <div           art">
-   ems-stiten etweify-b justlex"f=v className     <di   ">
-    -lg200 roundedd-border-re border  bg-red-50sName="p-3div clas        < && (
-     {error}
-     splay */Di {/* Error 
-
-       >div     </ )}
-            
-      </div>    iv>
-        </d   div>
-           </       
-   'Listening'}aking' : Spepeaking ? '     {isS      '}>
-       xt-blue-6000' : 'tegreen-60ing ? 'text-isSpeak className={   <div           :</span>
-  ">AI Status-gray-600"textassName=span cl          <    <div>
-             /div>
-      <    >
-       </divuration}ormattedDno">{fme="font-moiv classNa   <d             n>
-spa</Duration:0">ay-60"text-gre=classNampan           <siv>
-              <d      -sm">
-p-4 textgad-cols-2 "grid grie= classNam   <div       ted && (
-  isConnec  {         
-        iv>
-         </d/Badge>
-        <y'}
-      : 'Readonnected' ted ? 'C   {isConnec       ary'}>
-    : 'secondault'  ? 'defted{isConnecnt=<Badge varia           </span>
- um">Status: font-medi"text-smme=an classNa    <sp    -2">
-    er mbn items-centtify-betweee="flex jusam<div classN          ded-lg">
-0 rouny-5p-3 bg-graName="ss   <div cla
-     lay */}tatus Disp* S{/
-        div>
- </v>
-        </di   
+export default VAPIEpsonyxTest

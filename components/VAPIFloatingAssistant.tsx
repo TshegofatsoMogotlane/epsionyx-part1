@@ -1,11 +1,11 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Mic, MicOff, MessageSquare, X, Minimize2, Maximize2, Phone, PhoneOff } from 'lucide-react'
+import { Mic, MicOff, MessageSquare, X, Minimize2, Maximize2, Phone, PhoneOff, Target, Sparkles, AlertCircle } from 'lucide-react'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Badge } from './ui/badge'
-import { useVAPI } from '@/hooks/useVAPI'
+import Vapi from '@vapi-ai/web'
 
 interface VAPIFloatingAssistantProps {
   userContext?: {
@@ -13,59 +13,128 @@ interface VAPIFloatingAssistantProps {
     documentCount?: number
     currentDocument?: string
   }
+  interviewQuestions?: string[]
+  industryTasks?: string[]
+  topic?: string
 }
 
 const VAPIFloatingAssistant: React.FC<VAPIFloatingAssistantProps> = ({
-  userContext = {}
+  userContext = {},
+  interviewQuestions = [],
+  industryTasks = [],
+  topic = "University Degree Selection"
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const [isMinimized, setIsMinimized] = useState(false)
-  const [assistantMode, setAssistantMode] = useState<'studyBuddy' | 'careerCoach' | 'interviewCoach'>('studyBuddy')
+  const [assistantMode, setAssistantMode] = useState<'degreeGuide' | 'interviewCoach' | 'careerExplorer'>('degreeGuide')
+  
+  // Direct VAPI integration (like VAPIInterviewCoach)
+  const [isConnected, setIsConnected] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isSpeaking, setIsSpeaking] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [callDuration, setCallDuration] = useState(0)
+  const [vapi, setVapi] = useState<Vapi | null>(null)
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
 
-  const {
-    isConnected,
-    isLoading,
-    isSpeaking,
-    error,
-    callDuration,
-    formattedDuration,
-    startCall,
-    endCall,
-    clearError,
-    assistantName
-  } = useVAPI({
-    assistantType: assistantMode,
-    context: `User is on ${userContext.currentPage || 'unknown page'} with ${userContext.documentCount || 0} documents`,
-    onCallStart: () => {
-      console.log('Voice chat started')
-    },
-    onCallEnd: () => {
-      console.log('Voice chat ended')
-    },
-    onError: (err) => {
-      console.error('Voice chat error:', err)
+  // Initialize VAPI
+  useEffect(() => {
+    const publicKey = process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY
+    if (publicKey && typeof window !== 'undefined') {
+      const vapiInstance = new Vapi(publicKey)
+      setVapi(vapiInstance)
+
+      // Set up event listeners
+      vapiInstance.on('call-start', () => {
+        setIsConnected(true)
+        setIsLoading(false)
+        setCallDuration(0)
+        setCurrentQuestionIndex(0)
+        console.log('Voice chat started')
+      })
+
+      vapiInstance.on('call-end', () => {
+        setIsConnected(false)
+        setIsSpeaking(false)
+        console.log('Voice chat ended')
+      })
+
+      vapiInstance.on('speech-start', () => {
+        setIsSpeaking(true)
+      })
+
+      vapiInstance.on('speech-end', () => {
+        setIsSpeaking(false)
+      })
+
+      vapiInstance.on('error', (err) => {
+        setError(err.message || 'Voice call error')
+        setIsConnected(false)
+        setIsLoading(false)
+        console.error('Voice chat error:', err)
+      })
     }
-  })
+  }, [])
+
+  // Duration counter
+  useEffect(() => {
+    let interval: NodeJS.Timeout
+    if (isConnected) {
+      interval = setInterval(() => {
+        setCallDuration(prev => prev + 1)
+      }, 1000)
+    }
+    return () => {
+      if (interval) clearInterval(interval)
+    }
+  }, [isConnected])
 
   const assistantModes = {
-    'studyBuddy': {
-      name: 'Study Buddy',
+    'degreeGuide': {
+      name: 'Degree Guide',
       color: 'blue',
-      description: 'Get help with your studies and documents'
-    },
-    'careerCoach': {
-      name: 'Career Coach',
-      color: 'purple',
-      description: 'Career guidance and professional development'
+      description: 'Help choosing the best university degree for your goals'
     },
     'interviewCoach': {
       name: 'Interview Coach',
       color: 'green',
-      description: 'Practice interviews and get feedback'
+      description: 'Practice interview questions for your chosen field'
+    },
+    'careerExplorer': {
+      name: 'Career Explorer',
+      color: 'purple',
+      description: 'Explore career paths and industry opportunities'
     }
   }
 
-  // Remove the mock functions since we're using the real useVAPI hook
+  const startCall = async () => {
+    if (!vapi || isLoading) return
+
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      // Use your working assistant ID but provide context through the conversation
+      const assistantId = 'c2839809-8a92-4f4a-b154-fc258bd9515a'
+      await vapi.start(assistantId)
+    } catch (err: any) {
+      setError(err.message || 'Failed to start voice chat')
+      setIsLoading(false)
+    }
+  }
+
+  const endCall = async () => {
+    if (!vapi) return
+    try {
+      await vapi.stop()
+    } catch (err: any) {
+      setError(err.message || 'Failed to end call')
+    }
+  }
+
+  const clearError = () => setError(null)
+  const formattedDuration = `${Math.floor(callDuration / 60)}:${(callDuration % 60).toString().padStart(2, '0')}`
+  const currentQuestion = interviewQuestions[currentQuestionIndex] || "Tell me about your interests and career goals"
 
   const toggleAssistant = () => {
     if (isConnected) {
@@ -169,12 +238,34 @@ const VAPIFloatingAssistant: React.FC<VAPIFloatingAssistantProps> = ({
                 <div className="flex items-center gap-2 text-green-800">
                   <div className={`w-2 h-2 rounded-full ${isSpeaking ? 'bg-green-500 animate-pulse' : 'bg-blue-500'}`}></div>
                   <span className="text-sm font-medium">
-                    Connected to {assistantName} ({formattedDuration})
+                    Connected to {assistantModes[assistantMode].name} ({formattedDuration})
                   </span>
                 </div>
                 <div className="text-xs text-green-600 mt-1">
                   {isSpeaking ? 'AI is speaking...' : 'Speak naturally - I\'m listening and ready to help!'}
                 </div>
+              </div>
+            )}
+
+            {/* Current Question/Task Preview */}
+            {isConnected && assistantMode === 'interviewCoach' && currentQuestion && (
+              <div className="p-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200">
+                <div className="flex items-start gap-2 mb-2">
+                  <Target className="h-4 w-4 text-purple-600 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm font-medium text-purple-800">Current Question:</span>
+                </div>
+                <p className="text-sm text-purple-700 italic">"{currentQuestion}"</p>
+              </div>
+            )}
+
+            {/* Industry Tasks Preview */}
+            {isConnected && assistantMode === 'careerExplorer' && industryTasks.length > 0 && (
+              <div className="p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
+                <div className="flex items-start gap-2 mb-2">
+                  <Sparkles className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm font-medium text-green-800">Industry Tasks Available:</span>
+                </div>
+                <p className="text-sm text-green-700">{industryTasks.length} tasks ready for exploration</p>
               </div>
             )}
 
@@ -227,13 +318,38 @@ const VAPIFloatingAssistant: React.FC<VAPIFloatingAssistantProps> = ({
               VAPI Key: {process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY ? 'Present' : 'Missing'}
             </div>
 
-            {/* Quick Tips */}
+            {/* Quick Tips based on mode */}
             <div className="text-xs text-gray-500 space-y-1">
-              <div className="font-medium">Quick tips:</div>
-              <div>• "Help me understand this document"</div>
-              <div>• "What should I study next?"</div>
-              <div>• "Practice interview questions with me"</div>
+              <div className="font-medium">Quick tips for {assistantModes[assistantMode].name}:</div>
+              {assistantMode === 'degreeGuide' && (
+                <>
+                  <div>• "What degree should I choose for my interests?"</div>
+                  <div>• "Tell me about career prospects in engineering"</div>
+                  <div>• "Help me compare different university programs"</div>
+                </>
+              )}
+              {assistantMode === 'interviewCoach' && (
+                <>
+                  <div>• "Ask me interview questions for my field"</div>
+                  <div>• "Help me practice answering behavioral questions"</div>
+                  <div>• "Give me feedback on my responses"</div>
+                </>
+              )}
+              {assistantMode === 'careerExplorer' && (
+                <>
+                  <div>• "What industry tasks match my skills?"</div>
+                  <div>• "Show me real-world applications of my studies"</div>
+                  <div>• "Help me build a portfolio project"</div>
+                </>
+              )}
             </div>
+
+            {/* Available Resources */}
+            {(interviewQuestions.length > 0 || industryTasks.length > 0) && (
+              <div className="text-xs text-gray-500 p-2 bg-gray-50 rounded">
+                Resources: {interviewQuestions.length} interview questions, {industryTasks.length} industry tasks
+              </div>
+            )}
           </CardContent>
         )}
       </Card>
