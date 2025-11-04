@@ -10,7 +10,7 @@ import DocumentList from '@/components/DocumentList'
 import PDFDropzone from '@/components/PDFDropzone'
 
 // Dynamic imports for 3D components to avoid SSR issues
-const UniversityCampusScene = dynamic(() => import('@/components/3d/SimpleCampusScene'), {
+const UniversityCampusScene = dynamic(() => import('@/components/3d/UniversityCampusScene'), {
   ssr: false,
   loading: () => (
     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-900 to-purple-900">
