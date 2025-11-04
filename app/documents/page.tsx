@@ -8,9 +8,10 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import DocumentList from '@/components/DocumentList'
 import PDFDropzone from '@/components/PDFDropzone'
+import ScrollBasedLayout from '@/components/ScrollBasedLayout'
 
 // Dynamic imports for 3D components to avoid SSR issues
-const UniversityCampusScene = dynamic(() => import('@/components/3d/UniversityCampusScene'), {
+const UniversityCampusScene = dynamic(() => import('@/components/3d/RealisticUniversityScene'), {
   ssr: false,
   loading: () => (
     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-900 to-purple-900">
@@ -147,24 +148,25 @@ const Uploads = () => {
   }
 
   return (
-    <div className='min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900'>
-      {/* Revolutionary 3D Campus Experience */}
-      <div className="absolute inset-0">
-        <Suspense fallback={
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-900 to-purple-900 text-white">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
-              <h3 className="text-xl font-semibold mb-2">Loading Revolutionary 3D Experience</h3>
-              <p className="text-blue-200">Preparing South African university campuses...</p>
+    <ScrollBasedLayout>
+      <div className='min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900'>
+        {/* Revolutionary 3D Campus Experience */}
+        <div className="absolute inset-0">
+          <Suspense fallback={
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-900 to-purple-900 text-white">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
+                <h3 className="text-xl font-semibold mb-2">Loading Photorealistic 3D Experience</h3>
+                <p className="text-blue-200">Rendering 26 South African university campuses...</p>
+              </div>
             </div>
-          </div>
-        }>
-          <UniversityCampusScene
-            onUniversitySelect={handleUniversitySelect}
-            className="w-full h-full"
-          />
-        </Suspense>
-      </div>
+          }>
+            <UniversityCampusScene
+              onUniversitySelect={handleUniversitySelect}
+              className="w-full h-full"
+            />
+          </Suspense>
+        </div>
 
       {/* Top Navigation Bar */}
       <motion.div
@@ -297,6 +299,7 @@ const Uploads = () => {
         </div>
       </div>
     </div>
+    </ScrollBasedLayout>
   )
 }
 
