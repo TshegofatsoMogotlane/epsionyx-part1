@@ -67,18 +67,31 @@ const DocumentList = () => {
                 <div className='w-16 h-16 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6'>
                     <Sparkles className='h-8 w-8 text-blue-500' />
                 </div>
-                <h3 className='text-xl font-semibold text-gray-900 mb-3'>Start Your Journey!</h3>
-                <p className='text-gray-600 mb-6'>Upload your first academic PDF to get personalized industry projects and interview questions</p>
-                <div className='flex justify-center gap-4 text-sm'>
-                    <div className='flex items-center gap-2 text-blue-600'>
-                        <Target className='h-4 w-4' />
-                        <span>Industry Projects</span>
-                    </div>
-                    <div className='flex items-center gap-2 text-purple-600'>
-                        <MessageSquare className='h-4 w-4' />
-                        <span>Interview Prep</span>
+                <h3 className='text-xl font-semibold text-gray-900 mb-3'>🎯 Ready to Get Job-Ready?</h3>
+                <p className='text-gray-600 mb-4'>Upload your first academic PDF to unlock:</p>
+                <div className='bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 mb-6'>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-3 text-sm'>
+                        <div className='flex items-center gap-2 text-blue-700'>
+                            <Target className='h-4 w-4' />
+                            <span><strong>10-15 Industry Projects</strong> per document</span>
+                        </div>
+                        <div className='flex items-center gap-2 text-purple-700'>
+                            <MessageSquare className='h-4 w-4' />
+                            <span><strong>50+ Interview Questions</strong> per document</span>
+                        </div>
+                        <div className='flex items-center gap-2 text-green-700'>
+                            <Sparkles className='h-4 w-4' />
+                            <span><strong>AI Interview Coach</strong> for practice</span>
+                        </div>
+                        <div className='flex items-center gap-2 text-orange-700'>
+                            <FileText className='h-4 w-4' />
+                            <span><strong>Portfolio Projects</strong> to showcase</span>
+                        </div>
                     </div>
                 </div>
+                <p className='text-sm text-gray-500 text-center'>
+                    💡 <strong>This is your path to employment success!</strong> Transform academic knowledge into job-ready skills.
+                </p>
             </div>
         )
     }
@@ -96,7 +109,7 @@ const DocumentList = () => {
             {documents.map((document: Doc<'documents'>) => (
                 <Card 
                     key={document._id} 
-                    className='cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] border-l-4 border-l-blue-500 bg-gradient-to-r from-white to-blue-50/30'
+                    className='cursor-pointer hover:shadow-xl transition-all duration-200 hover:scale-[1.02] border-l-4 border-l-blue-500 bg-gradient-to-r from-white to-blue-50/30 hover:from-blue-50/50 hover:to-purple-50/50'
                     onClick={() => router.push(`/document/${document._id}`)}
                 >
                     <CardContent className='p-6'>
@@ -127,26 +140,42 @@ const DocumentList = () => {
                                         )}
                                     </div>
 
-                                    <div className='flex items-center gap-4 text-sm'>
+                                    <div className='flex items-center gap-4 text-sm mb-3'>
                                         {document.extractedTopics && document.extractedTopics.length > 0 && (
                                             <div className='flex items-center gap-1 text-blue-600'>
                                                 <Target className='h-4 w-4' />
-                                                <span>{document.extractedTopics.length} topics</span>
+                                                <span><strong>{document.extractedTopics.length}</strong> topics</span>
                                             </div>
                                         )}
                                         {document.industryTasks && document.industryTasks.length > 0 && (
                                             <div className='flex items-center gap-1 text-purple-600'>
                                                 <Sparkles className='h-4 w-4' />
-                                                <span>{document.industryTasks.length} projects</span>
+                                                <span><strong>{document.industryTasks.length}</strong> projects</span>
                                             </div>
                                         )}
                                         {document.interviewQuestions && document.interviewQuestions.length > 0 && (
                                             <div className='flex items-center gap-1 text-green-600'>
                                                 <MessageSquare className='h-4 w-4' />
-                                                <span>{document.interviewQuestions.length} questions</span>
+                                                <span><strong>{document.interviewQuestions.length}</strong> questions</span>
                                             </div>
                                         )}
                                     </div>
+                                    
+                                    {document.status === 'completed' && (
+                                        <div className='bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-3 border border-green-200'>
+                                            <p className='text-sm font-medium text-green-800'>
+                                                🎉 <strong>Ready for Career Success!</strong> Click to access your industry projects and interview questions.
+                                            </p>
+                                        </div>
+                                    )}
+                                    
+                                    {document.status === 'pending' && (
+                                        <div className='bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg p-3 border border-yellow-200'>
+                                            <p className='text-sm font-medium text-yellow-800'>
+                                                ⏳ <strong>Processing...</strong> Your industry projects and interview questions are being generated.
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                             
