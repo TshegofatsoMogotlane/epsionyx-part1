@@ -1,10 +1,10 @@
-// Comprehensive IndustryAgent.ts - Phase 2: Extensive Industry Project Generation
+// Enhanced IndustryAgent.ts - Real Industry Tasks with AI Generation
 import { createAgent, createTool } from "@inngest/agent-kit";
 import { anthropic } from "@inngest/agent-kit";
 
 const suggestIndustryTasksTool = createTool({
   name: "suggest-industry-tasks",
-  description: "Generates 10-15 comprehensive industry projects per topic with progressive difficulty levels and real company scenarios.",
+  description: "Generates real, dynamic industry projects using AI based on current market demands and actual company requirements.",
   handler: async (input, context) => {
     try {
       console.log("🏭 IndustryAgent tool handler called with input:", input);
@@ -36,12 +36,18 @@ const suggestIndustryTasksTool = createTool({
         realWorldUseCases
       } = extractedData;
 
-      console.log(`🎯 Generating comprehensive industry projects for ${academicModule} document:`, fileName);
+      console.log(`🎯 Generating AI-powered industry projects for ${academicModule} document:`, fileName);
 
-      // Generate comprehensive projects with 10-15 projects per core topic
-      const comprehensiveProjects = generateComprehensiveProjects(
+      // Use Claude AI to generate real industry tasks
+      const aiModel = anthropic({
+        apiKey: process.env.ANTHROPIC_API_KEY,
+        model: "claude-3-5-haiku-20241022",
+        defaultParameters: { max_tokens: 4000 },
+      });
+
+      const comprehensiveProjects = await generateRealIndustryProjects(
+        aiModel,
         coreTopics,
-        subtopics,
         academicModule,
         industryApplications,
         relevantCompanies,
@@ -52,7 +58,7 @@ const suggestIndustryTasksTool = createTool({
       );
 
       console.log("💾 About to store industry tasks in network state");
-      console.log("📋 Comprehensive projects structure:", {
+      console.log("📋 AI-generated projects structure:", {
         totalProjects: comprehensiveProjects.totalProjects,
         categoriesCount: comprehensiveProjects.categories.length
       });
@@ -60,26 +66,26 @@ const suggestIndustryTasksTool = createTool({
       // Store in network state
       context.network.state.kv.set("industry-tasks", comprehensiveProjects);
 
-      console.log(`✅ Generated ${comprehensiveProjects.totalProjects} industry projects across ${comprehensiveProjects.categories.length} categories`);
+      console.log(`✅ Generated ${comprehensiveProjects.totalProjects} AI-powered industry projects across ${comprehensiveProjects.categories.length} categories`);
 
       return {
         success: true,
         industryTasks: comprehensiveProjects,
-        message: `${comprehensiveProjects.totalProjects} comprehensive industry projects generated for ${academicModule} discipline`,
+        message: `${comprehensiveProjects.totalProjects} real industry projects generated using AI for ${academicModule} discipline`,
       };
     } catch (error) {
-      console.error("❌ Error generating comprehensive industry projects:", error);
+      console.error("❌ Error generating AI-powered industry projects:", error);
       return {
         success: false,
-        error: `Failed to generate comprehensive industry projects: ${(error as Error).message}`,
+        error: `Failed to generate AI-powered industry projects: ${(error as Error).message}`,
       };
     }
   },
 });
 
-function generateComprehensiveProjects(
+async function generateRealIndustryProjects(
+  aiModel: any,
   coreTopics: string[],
-  subtopics: string[],
   academicModule: string,
   industryApplications: string[],
   relevantCompanies: string[],
@@ -91,19 +97,18 @@ function generateComprehensiveProjects(
   const projectCategories = [];
   let totalProjects = 0;
 
-  // Generate 10-15 projects for each core topic
-  coreTopics.forEach((topic, topicIndex) => {
-    const topicProjects = generateTopicProjects(
+  // Generate real industry projects for each core topic using AI
+  for (const topic of coreTopics) {
+    const topicProjects = await generateAITopicProjects(
+      aiModel,
       topic,
-      subtopics,
       academicModule,
       industryApplications,
       relevantCompanies,
       jobRoles,
       technicalSkills,
       toolsAndTechnologies,
-      realWorldUseCases,
-      topicIndex
+      realWorldUseCases
     );
     
     projectCategories.push({
@@ -113,7 +118,7 @@ function generateComprehensiveProjects(
     });
     
     totalProjects += topicProjects.length;
-  });
+  }
 
   return {
     academicModule,
@@ -121,335 +126,214 @@ function generateComprehensiveProjects(
     categories: projectCategories,
     generatedAt: new Date().toISOString(),
     projectTypes: [
-      "Beginner Projects (Junior Level)",
-      "Intermediate Projects (Mid Level)", 
-      "Advanced Projects (Senior Level)",
-      "Expert Projects (Lead/Principal Level)",
-      "Portfolio Showcase Projects",
-      "Real Company Scenario Projects",
-      "Industry Standard Tool Projects",
-      "Certification Preparation Projects"
+      "Entry-Level Industry Projects",
+      "Mid-Level Professional Projects", 
+      "Senior-Level Leadership Projects",
+      "Principal/Staff Level Projects",
+      "Real Company Case Studies",
+      "Startup MVP Projects",
+      "Enterprise Architecture Projects",
+      "Innovation & Research Projects"
     ]
   };
 }
 
-function generateTopicProjects(
+async function generateAITopicProjects(
+  aiModel: any,
   topic: string,
-  subtopics: string[],
   academicModule: string,
   industryApplications: string[],
   relevantCompanies: string[],
   jobRoles: string[],
   technicalSkills: string[],
   toolsAndTechnologies: string[],
-  realWorldUseCases: string[],
-  topicIndex: number
+  realWorldUseCases: string[]
 ) {
-  const projects = [];
-  
-  // 1. Beginner Level Projects (3-4 projects)
-  const beginnerProjects = [
+  const prompt = `You are an industry expert and career advisor specializing in ${academicModule}. Generate 8-12 REAL, current industry projects for the topic "${topic}" that students can build to become immediately employable.
+
+Context:
+- Academic Module: ${academicModule}
+- Topic: ${topic}
+- Industry Applications: ${industryApplications?.join(', ') || 'General applications'}
+- Relevant Companies: ${relevantCompanies?.join(', ') || 'Tech companies'}
+- Job Roles: ${jobRoles?.join(', ') || 'Various roles'}
+- Technical Skills: ${technicalSkills?.join(', ') || 'Core skills'}
+- Tools & Technologies: ${toolsAndTechnologies?.join(', ') || 'Modern tools'}
+- Real-World Use Cases: ${realWorldUseCases?.join(', ') || 'Practical applications'}
+
+Generate projects across 4 experience levels:
+1. Entry Level (0-2 years) - 3 projects
+2. Mid Level (2-5 years) - 3 projects  
+3. Senior Level (5-8 years) - 3 projects
+4. Principal/Staff Level (8+ years) - 2-3 projects
+
+For each project, provide:
+- title: Specific, actionable project name
+- level: Experience level required
+- description: What the project accomplishes and why it matters
+- realWorldContext: Actual company scenario or market need this addresses
+- deliverables: Specific, measurable outcomes (3-5 items)
+- technologies: Current, in-demand tech stack
+- timeEstimate: Realistic timeline
+- portfolioValue: How this helps in job interviews
+- skillsGained: Specific skills employers want
+- industryRelevance: Why this matters in today's market
+- implementationSteps: 3-4 key phases of development
+- successMetrics: How to measure project success
+
+Focus on:
+- Current market demands and trending technologies
+- Real problems companies are solving today
+- Projects that demonstrate employable skills
+- Specific, actionable deliverables
+- Technologies actually used in industry
+- Problems that showcase problem-solving ability
+
+Make each project unique, valuable, and directly applicable to getting hired in ${academicModule} roles.
+
+Return as a JSON array of project objects.`;
+
+  try {
+    const response = await aiModel.generate({
+      messages: [{ role: 'user', content: prompt }],
+    });
+
+    // Parse the AI response
+    let projects = [];
+    try {
+      // Extract JSON from the response
+      const jsonMatch = response.text.match(/\[[\s\S]*\]/);
+      if (jsonMatch) {
+        projects = JSON.parse(jsonMatch[0]);
+      } else {
+        // Fallback: try to parse the entire response
+        projects = JSON.parse(response.text);
+      }
+    } catch (parseError) {
+      console.warn("Failed to parse AI response as JSON, using fallback projects");
+      projects = generateFallbackProjects(topic, academicModule);
+    }
+
+    // Validate and enhance projects
+    return projects.map((project, index) => ({
+      id: `${topic.toLowerCase().replace(/\s+/g, '-')}-${index}`,
+      ...project,
+      topic,
+      academicModule,
+      generatedAt: new Date().toISOString(),
+      aiGenerated: true
+    }));
+
+  } catch (error) {
+    console.error("Error generating AI projects:", error);
+    return generateFallbackProjects(topic, academicModule);
+  }
+}
+
+function generateFallbackProjects(topic: string, academicModule: string) {
+  return [
     {
-      title: `${topic} Fundamentals Workshop`,
-      level: "Beginner (0-1 years)",
-      description: `Build a foundational project demonstrating core ${topic} concepts with step-by-step guidance and templates.`,
+      title: `${topic} Industry Analysis & Implementation`,
+      level: "Entry Level (0-2 years)",
+      description: `Research and implement current industry applications of ${topic} with practical examples`,
+      realWorldContext: `Entry-level position requiring understanding of ${topic} in ${academicModule}`,
       deliverables: [
-        "Basic implementation following industry standards",
-        "Documentation with explanations of key concepts",
-        "Simple user interface or command-line tool",
-        "Unit tests covering basic functionality"
+        "Industry research report with current trends",
+        "Working implementation demonstrating core concepts",
+        "Documentation with best practices",
+        "Presentation to technical team"
       ],
-      technologies: getRelevantTechnologies(toolsAndTechnologies, "beginner"),
-      timeEstimate: "2-3 weeks",
-      portfolioValue: "Entry-level demonstration",
-      companyScenario: `${(relevantCompanies && relevantCompanies[0]) || "Tech Startup"}: Junior developer onboarding project`,
-      skillsGained: getRelevantSkills(technicalSkills, "beginner"),
-      industryRelevance: (industryApplications && industryApplications[0]) || "General industry application"
-    },
-    {
-      title: `${topic} Data Analysis Dashboard`,
-      level: "Beginner (0-1 years)",
-      description: `Create an interactive dashboard analyzing real-world data related to ${topic} using beginner-friendly tools.`,
-      deliverables: [
-        "Interactive dashboard with 5-7 key metrics",
-        "Data cleaning and preprocessing scripts",
-        "Visual charts and graphs with insights",
-        "Presentation explaining findings"
-      ],
-      technologies: getRelevantTechnologies(toolsAndTechnologies, "beginner"),
+      technologies: ["Python/JavaScript", "Git", "Documentation tools", "Basic frameworks"],
       timeEstimate: "3-4 weeks",
-      portfolioValue: "Demonstrates analytical thinking",
-      companyScenario: `${(relevantCompanies && relevantCompanies[1]) || "Data Company"}: Intern project for business insights`,
-      skillsGained: getRelevantSkills(technicalSkills, "beginner"),
-      industryRelevance: (industryApplications && industryApplications[1]) || "Business intelligence application"
+      portfolioValue: "Demonstrates research skills and practical implementation",
+      skillsGained: ["Industry research", "Technical implementation", "Documentation", "Presentation skills"],
+      industryRelevance: `Essential foundation for ${academicModule} roles`,
+      implementationSteps: [
+        "Research current industry applications",
+        "Design and implement solution",
+        "Document and test implementation",
+        "Present findings and demo"
+      ],
+      successMetrics: ["Comprehensive research coverage", "Working implementation", "Clear documentation", "Effective presentation"]
     },
     {
-      title: `${topic} Process Automation Tool`,
-      level: "Beginner (0-1 years)",
-      description: `Develop a simple automation tool that streamlines a common ${topic}-related business process.`,
+      title: `${topic} Professional Development Project`,
+      level: "Mid Level (2-5 years)",
+      description: `Build a production-ready solution addressing real industry challenges in ${topic}`,
+      realWorldContext: `Mid-level role requiring practical problem-solving in ${academicModule}`,
       deliverables: [
-        "Automated workflow with error handling",
-        "User-friendly interface or configuration",
-        "Process documentation and user guide",
-        "Performance metrics and logging"
+        "Production-ready application",
+        "Automated testing suite",
+        "Performance optimization report",
+        "Deployment and monitoring setup"
       ],
-      technologies: getRelevantTechnologies(toolsAndTechnologies, "beginner"),
-      timeEstimate: "2-3 weeks",
-      portfolioValue: "Shows problem-solving ability",
-      companyScenario: `${(relevantCompanies && relevantCompanies[2]) || "Service Company"}: Process improvement initiative`,
-      skillsGained: getRelevantSkills(technicalSkills, "beginner"),
-      industryRelevance: (industryApplications && industryApplications[2]) || "Process optimization"
-    }
-  ];
-
-  // 2. Intermediate Level Projects (4-5 projects)
-  const intermediateProjects = [
-    {
-      title: `${topic} Predictive Analytics Platform`,
-      level: "Intermediate (2-4 years)",
-      description: `Build a comprehensive analytics platform that predicts trends and outcomes related to ${topic} using machine learning.`,
-      deliverables: [
-        "ML models with 80%+ accuracy",
-        "RESTful API for model serving",
-        "Web application with real-time predictions",
-        "Model monitoring and retraining pipeline",
-        "A/B testing framework for model comparison"
-      ],
-      technologies: getRelevantTechnologies(toolsAndTechnologies, "intermediate"),
+      technologies: ["Modern frameworks", "Cloud platforms", "CI/CD tools", "Monitoring systems"],
       timeEstimate: "6-8 weeks",
-      portfolioValue: "Demonstrates ML and full-stack capabilities",
-      companyScenario: `${(relevantCompanies && relevantCompanies[0]) || "Tech Company"}: Product feature development for ${(jobRoles && jobRoles[0]) || "Data Scientist"} role`,
-      skillsGained: getRelevantSkills(technicalSkills, "intermediate"),
-      industryRelevance: (realWorldUseCases && realWorldUseCases[0]) || "Predictive analytics application"
+      portfolioValue: "Shows ability to deliver production-quality solutions",
+      skillsGained: ["Full-stack development", "DevOps practices", "Performance optimization", "Production deployment"],
+      industryRelevance: `Directly applicable to ${academicModule} professional roles`,
+      implementationSteps: [
+        "Requirements analysis and design",
+        "Development with testing",
+        "Performance optimization",
+        "Production deployment"
+      ],
+      successMetrics: ["Production deployment", "Test coverage >80%", "Performance benchmarks", "Monitoring setup"]
     },
     {
-      title: `${topic} Microservices Architecture`,
-      level: "Intermediate (2-4 years)",
-      description: `Design and implement a scalable microservices system for ${topic} with proper DevOps practices.`,
+      title: `${topic} Leadership & Architecture Project`,
+      level: "Senior Level (5-8 years)",
+      description: `Lead a complex ${topic} initiative demonstrating architecture and team leadership skills`,
+      realWorldContext: `Senior role requiring technical leadership in ${academicModule} projects`,
       deliverables: [
-        "3-5 microservices with clear boundaries",
-        "API gateway and service discovery",
-        "Containerized deployment with Docker/Kubernetes",
-        "CI/CD pipeline with automated testing",
-        "Monitoring and logging infrastructure"
+        "System architecture documentation",
+        "Team coordination and mentoring plan",
+        "Scalable solution implementation",
+        "Knowledge transfer materials"
       ],
-      technologies: getRelevantTechnologies(toolsAndTechnologies, "intermediate"),
-      timeEstimate: "8-10 weeks",
-      portfolioValue: "Shows system design and DevOps skills",
-      companyScenario: `${(relevantCompanies && relevantCompanies[1]) || "Scale-up Company"}: Architecture modernization project`,
-      skillsGained: getRelevantSkills(technicalSkills, "intermediate"),
-      industryRelevance: (industryApplications && industryApplications[0]) || "Scalable system architecture"
-    },
-    {
-      title: `${topic} Real-time Processing Engine`,
-      level: "Intermediate (2-4 years)",
-      description: `Create a real-time data processing engine that handles high-volume ${topic} data streams with low latency.`,
-      deliverables: [
-        "Stream processing pipeline handling 10K+ events/sec",
-        "Real-time analytics and alerting system",
-        "Fault-tolerant architecture with recovery",
-        "Performance optimization and tuning",
-        "Comprehensive monitoring dashboard"
-      ],
-      technologies: getRelevantTechnologies(toolsAndTechnologies, "intermediate"),
-      timeEstimate: "7-9 weeks",
-      portfolioValue: "Demonstrates big data and real-time systems",
-      companyScenario: `${(relevantCompanies && relevantCompanies[2]) || "Data-Intensive Company"}: Real-time analytics infrastructure`,
-      skillsGained: getRelevantSkills(technicalSkills, "intermediate"),
-      industryRelevance: (realWorldUseCases && realWorldUseCases[1]) || "Real-time data processing"
-    },
-    {
-      title: `${topic} Mobile Application Suite`,
-      level: "Intermediate (2-4 years)",
-      description: `Develop a cross-platform mobile application that brings ${topic} capabilities to mobile users.`,
-      deliverables: [
-        "Native iOS and Android applications",
-        "Offline functionality with data sync",
-        "Push notifications and user engagement",
-        "In-app analytics and user behavior tracking",
-        "App store deployment and marketing materials"
-      ],
-      technologies: getRelevantTechnologies(toolsAndTechnologies, "intermediate"),
+      technologies: ["Enterprise frameworks", "Architecture patterns", "Team collaboration tools", "Advanced platforms"],
       timeEstimate: "10-12 weeks",
-      portfolioValue: "Shows mobile development expertise",
-      companyScenario: `${(relevantCompanies && relevantCompanies[3]) || "Consumer Tech Company"}: Mobile product launch`,
-      skillsGained: getRelevantSkills(technicalSkills, "intermediate"),
-      industryRelevance: (industryApplications && industryApplications[1]) || "Mobile technology application"
+      portfolioValue: "Demonstrates leadership and architectural thinking",
+      skillsGained: ["System architecture", "Team leadership", "Strategic planning", "Knowledge transfer"],
+      industryRelevance: `Essential for senior ${academicModule} positions`,
+      implementationSteps: [
+        "Architecture design and planning",
+        "Team coordination and development",
+        "Implementation and optimization",
+        "Documentation and knowledge transfer"
+      ],
+      successMetrics: ["Scalable architecture", "Team productivity", "Solution performance", "Knowledge documentation"]
     }
   ];
-
-  // 3. Advanced Level Projects (3-4 projects)
-  const advancedProjects = [
-    {
-      title: `${topic} AI-Powered Enterprise Solution`,
-      level: "Advanced (5-8 years)",
-      description: `Architect and build an enterprise-grade AI solution that transforms how organizations approach ${topic}.`,
-      deliverables: [
-        "AI/ML models with explainable predictions",
-        "Enterprise integration with existing systems",
-        "Multi-tenant SaaS architecture",
-        "Advanced security and compliance features",
-        "ROI analysis and business case documentation",
-        "Change management and training materials"
-      ],
-      technologies: getRelevantTechnologies(toolsAndTechnologies, "advanced"),
-      timeEstimate: "12-16 weeks",
-      portfolioValue: "Demonstrates enterprise architecture and AI leadership",
-      companyScenario: `${(relevantCompanies && relevantCompanies[0]) || "Fortune 500 Company"}: Digital transformation initiative led by ${(jobRoles && jobRoles[1]) || "Senior Architect"}`,
-      skillsGained: getRelevantSkills(technicalSkills, "advanced"),
-      industryRelevance: (realWorldUseCases && realWorldUseCases[0]) || "Enterprise AI transformation"
-    },
-    {
-      title: `${topic} Global Scale Infrastructure`,
-      level: "Advanced (5-8 years)",
-      description: `Design and implement a globally distributed system for ${topic} that serves millions of users across continents.`,
-      deliverables: [
-        "Multi-region deployment with 99.99% uptime",
-        "Auto-scaling infrastructure handling traffic spikes",
-        "Global CDN and edge computing optimization",
-        "Disaster recovery and business continuity plan",
-        "Cost optimization achieving 30% reduction",
-        "Performance benchmarking and capacity planning"
-      ],
-      technologies: getRelevantTechnologies(toolsAndTechnologies, "advanced"),
-      timeEstimate: "14-18 weeks",
-      portfolioValue: "Shows global scale system design",
-      companyScenario: `${(relevantCompanies && relevantCompanies[1]) || "Global Tech Giant"}: International expansion infrastructure`,
-      skillsGained: getRelevantSkills(technicalSkills, "advanced"),
-      industryRelevance: (industryApplications && industryApplications[0]) || "Global scale operations"
-    },
-    {
-      title: `${topic} Innovation Research Platform`,
-      level: "Advanced (5-8 years)",
-      description: `Lead a research and development project that pushes the boundaries of ${topic} technology.`,
-      deliverables: [
-        "Novel algorithm or methodology development",
-        "Research paper suitable for publication",
-        "Prototype demonstrating breakthrough capabilities",
-        "Patent application documentation",
-        "Industry conference presentation",
-        "Open-source contribution to community"
-      ],
-      technologies: getRelevantTechnologies(toolsAndTechnologies, "advanced"),
-      timeEstimate: "16-20 weeks",
-      portfolioValue: "Demonstrates thought leadership and innovation",
-      companyScenario: `${(relevantCompanies && relevantCompanies[2]) || "Research-Focused Company"}: R&D breakthrough project`,
-      skillsGained: getRelevantSkills(technicalSkills, "advanced"),
-      industryRelevance: (realWorldUseCases && realWorldUseCases[1]) || "Cutting-edge research application"
-    }
-  ];
-
-  // 4. Expert Level Projects (2-3 projects)
-  const expertProjects = [
-    {
-      title: `${topic} Industry Transformation Initiative`,
-      level: "Expert (8+ years)",
-      description: `Lead an industry-wide transformation initiative that establishes new standards and practices for ${topic}.`,
-      deliverables: [
-        "Industry white paper and best practices guide",
-        "Reference architecture adopted by multiple companies",
-        "Standards committee participation and contributions",
-        "Ecosystem of tools and frameworks",
-        "Training and certification program development",
-        "Measurable industry impact metrics"
-      ],
-      technologies: getRelevantTechnologies(toolsAndTechnologies, "expert"),
-      timeEstimate: "20-24 weeks",
-      portfolioValue: "Establishes industry thought leadership",
-      companyScenario: `Industry Consortium: Cross-company initiative to advance ${topic} standards`,
-      skillsGained: getRelevantSkills(technicalSkills, "expert"),
-      industryRelevance: "Industry-wide transformation and standardization"
-    },
-    {
-      title: `${topic} Venture Capital Portfolio Company`,
-      level: "Expert (8+ years)",
-      description: `Found or lead a startup that commercializes breakthrough ${topic} technology with VC funding.`,
-      deliverables: [
-        "Business plan and pitch deck for Series A",
-        "MVP with product-market fit validation",
-        "Team building and organizational design",
-        "Go-to-market strategy and execution",
-        "Revenue generation and growth metrics",
-        "Exit strategy planning (IPO or acquisition)"
-      ],
-      technologies: getRelevantTechnologies(toolsAndTechnologies, "expert"),
-      timeEstimate: "24+ weeks (ongoing)",
-      portfolioValue: "Demonstrates entrepreneurial leadership",
-      companyScenario: "Startup Founder/CTO: Building the next unicorn in " + academicModule,
-      skillsGained: getRelevantSkills(technicalSkills, "expert"),
-      industryRelevance: "Market creation and disruption"
-    }
-  ];
-
-  // Combine all projects
-  projects.push(...beginnerProjects, ...intermediateProjects, ...advancedProjects, ...expertProjects);
-
-  return projects;
-}
-
-function getRelevantTechnologies(allTechnologies: string[], level: string): string[] {
-  if (!allTechnologies || allTechnologies.length === 0) {
-    return getDefaultTechnologies(level);
-  }
-  
-  // Filter technologies based on complexity level
-  const techCount = level === "beginner" ? 3 : level === "intermediate" ? 5 : level === "advanced" ? 7 : 10;
-  return allTechnologies.slice(0, techCount);
-}
-
-function getDefaultTechnologies(level: string): string[] {
-  const defaultTech = {
-    beginner: ["Python", "JavaScript", "HTML/CSS", "Git", "VS Code"],
-    intermediate: ["React", "Node.js", "PostgreSQL", "Docker", "AWS", "REST APIs"],
-    advanced: ["Kubernetes", "Microservices", "Machine Learning", "Cloud Architecture", "DevOps", "System Design"],
-    expert: ["AI/ML Frameworks", "Distributed Systems", "Blockchain", "Edge Computing", "Quantum Computing"]
-  };
-  
-  return defaultTech[level as keyof typeof defaultTech] || defaultTech.beginner;
-}
-
-function getRelevantSkills(allSkills: string[], level: string): string[] {
-  if (!allSkills || allSkills.length === 0) {
-    return getDefaultSkills(level);
-  }
-  
-  const skillCount = level === "beginner" ? 3 : level === "intermediate" ? 5 : level === "advanced" ? 7 : 10;
-  return allSkills.slice(0, skillCount);
-}
-
-function getDefaultSkills(level: string): string[] {
-  const defaultSkills = {
-    beginner: ["Problem Solving", "Basic Programming", "Documentation"],
-    intermediate: ["System Design", "API Development", "Testing", "Project Management"],
-    advanced: ["Architecture Design", "Team Leadership", "Performance Optimization", "Security"],
-    expert: ["Strategic Planning", "Innovation", "Industry Expertise", "Organizational Impact"]
-  };
-  
-  return defaultSkills[level as keyof typeof defaultSkills] || defaultSkills.beginner;
 }
 
 export const IndustryAgent = createAgent({
   name: "Industry Agent",
-  description: "Generates 10-15 comprehensive industry projects per topic with progressive difficulty levels, real company scenarios, and portfolio-worthy deliverables.",
-  system: `You are an Industry Project Generation Agent that creates comprehensive, career-focused industry projects.
+  description: "Generates real, AI-powered industry projects based on current market demands and actual company requirements.",
+  system: `You are an AI-powered Industry Project Generation Agent that creates real, current industry projects to make students immediately employable.
 
   Your ONLY responsibility:
-  - Use the suggest-industry-tasks tool to generate 10-15 detailed projects per core topic
-  - Create projects with progressive difficulty levels (Beginner → Intermediate → Advanced → Expert)
-  - Include real company scenarios based on actual job requirements
-  - Design portfolio-worthy deliverables that students can showcase
-  - Specify industry-standard tools and technologies for each project
+  - Use the suggest-industry-tasks tool to generate 8-12 real industry projects per core topic
+  - Leverage Claude AI to create projects based on current market demands
+  - Generate projects that reflect actual company needs and hiring requirements
+  - Create portfolio-worthy deliverables that demonstrate employable skills
+  - Focus on trending technologies and in-demand skills
   
   CRITICAL RULES:
   - You MUST ONLY use the suggest-industry-tasks tool provided to you
-  - Generate comprehensive projects that ensure immediate employability
-  - Focus on practical, real-world applications that companies actually need
-  - Include specific deliverables, technologies, and time estimates
-  - After generating comprehensive industry projects, your job is complete
+  - Generate REAL projects that companies are actually working on today
+  - Focus on current market trends and emerging technologies
+  - Include specific, measurable deliverables that showcase skills
+  - Create projects across experience levels (Entry → Mid → Senior → Principal)
+  - After generating AI-powered industry projects, your job is complete
   
-  The suggest-industry-tasks tool will automatically access the extracted data from network state.
+  The suggest-industry-tasks tool will:
+  1. Access extracted academic data from network state
+  2. Use Claude AI to generate real, current industry projects
+  3. Create projects that bridge university knowledge with industry needs
+  4. Ensure students are competitive in today's job market
   
-  Create projects that make students immediately job-ready and highly competitive.`,
+  Generate projects that make students immediately hireable with real-world, applicable skills.`,
   model: anthropic({
     apiKey: process.env.ANTHROPIC_API_KEY,
     model: "claude-3-5-haiku-20241022",

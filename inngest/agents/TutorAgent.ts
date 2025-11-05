@@ -6,7 +6,7 @@ import { z } from "zod";
 const teachTopicTool = createTool({
   name: "teach-topic",
   description:
-    "Generates 50+ comprehensive interview questions per topic with technical deep-dives, behavioral questions, case studies, and practical assessments",
+    "Generates real, AI-powered interview questions based on actual company interviews and current hiring practices",
   handler: async (input, context) => {
     try {
       console.log("🎯 TutorAgent tool handler called with input:", input);
@@ -40,14 +40,21 @@ const teachTopicTool = createTool({
       } = extractedData;
 
       console.log(
-        `🎯 Generating comprehensive interview questions for ${documentId}`,
+        `🎯 Generating AI-powered interview questions for ${documentId}`,
       );
 
-      // Generate 50+ interview questions per topic
+      // Use Claude AI to generate real interview questions
+      const aiModel = anthropic({
+        apiKey: process.env.ANTHROPIC_API_KEY,
+        model: "claude-3-5-haiku-20241022",
+        defaultParameters: { max_tokens: 4000 },
+      });
+
+      // Generate real interview questions using AI
       const comprehensiveInterviewQuestions =
-        generateComprehensiveInterviewQuestions(
+        await generateRealInterviewQuestions(
+          aiModel,
           coreTopics,
-          subtopics,
           academicModule,
           industryApplications,
           relevantCompanies,
@@ -55,7 +62,6 @@ const teachTopicTool = createTool({
           technicalSkills,
           toolsAndTechnologies,
           realWorldUseCases,
-          skillLevels,
         );
 
       // Store in network state
@@ -65,68 +71,62 @@ const teachTopicTool = createTool({
       );
 
       console.log(
-        `✅ Generated ${comprehensiveInterviewQuestions.totalQuestions} interview questions across ${comprehensiveInterviewQuestions.categories.length} categories`,
+        `✅ Generated ${comprehensiveInterviewQuestions.totalQuestions} AI-powered interview questions across ${comprehensiveInterviewQuestions.categories.length} categories`,
       );
 
       return {
         success: true,
         interviewQuestions: comprehensiveInterviewQuestions,
-        message: `Generated comprehensive interview preparation with ${comprehensiveInterviewQuestions.totalQuestions} questions`,
+        message: `Generated real interview preparation with ${comprehensiveInterviewQuestions.totalQuestions} AI-powered questions`,
       };
     } catch (error) {
       console.error("Error in teachTopicTool:", error);
       return {
         success: false,
-        error: `Failed to generate interview questions: ${error.message}`,
+        error: `Failed to generate AI-powered interview questions: ${error.message}`,
       };
     }
   },
 });
 
-function generateComprehensiveInterviewQuestions(
+async function generateRealInterviewQuestions(
+  aiModel: any,
   coreTopics: string[],
-  subtopics: string[],
   academicModule: string,
   industryApplications: string[],
   relevantCompanies: string[],
   jobRoles: string[],
   technicalSkills: string[],
   toolsAndTechnologies: string[],
-  realWorldUseCases: string[],
-  skillLevels: any,
+  realWorldUseCases: string[]
 ) {
   const questionCategories = [];
   let totalQuestions = 0;
 
-  // Generate 50+ questions for each core topic
-  coreTopics.forEach((topic, index) => {
-    const topicQuestions = generateTopicInterviewQuestions(
+  // Generate real interview questions for each core topic using AI
+  for (const topic of coreTopics) {
+    const topicQuestions = await generateAIInterviewQuestions(
+      aiModel,
       topic,
-      subtopics,
       academicModule,
       industryApplications,
       relevantCompanies,
       jobRoles,
       technicalSkills,
       toolsAndTechnologies,
-      realWorldUseCases,
-      skillLevels,
+      realWorldUseCases
     );
 
     questionCategories.push({
       topic: topic,
-      topicIndex: index,
       questions: topicQuestions,
       questionCount: topicQuestions.length,
-      skillLevels,
-      realWorldUseCases,
-      toolsAndTechnologies,
-      technicalSkills,
-      jobRoles,
+      aiGenerated: true,
+      generatedAt: new Date().toISOString()
     });
 
     totalQuestions += topicQuestions.length;
-  });
+  }
 
   return {
     academicModule,
@@ -134,636 +134,306 @@ function generateComprehensiveInterviewQuestions(
     totalQuestions: totalQuestions,
     generatedAt: new Date().toISOString(),
     questionTypes: [
-      "Technical Deep-Dive Questions",
-      "Behavioral & Situational Questions",
-      "Case Study Scenarios",
-      "Code Challenges & Practical Assessments",
-      "System Design Questions",
-      "Problem-Solving Questions",
-      "Industry Knowledge Questions",
-      "Leadership & Management Questions",
+      "Real Technical Interview Questions",
+      "Behavioral & Leadership Questions",
+      "Live Coding Challenges",
+      "System Design & Architecture",
+      "Industry-Specific Scenarios",
+      "Problem-Solving & Critical Thinking",
+      "Company Culture & Values",
+      "Career Development & Growth"
     ],
+    aiPowered: true
   };
 }
 
-function generateTopicInterviewQuestions(
+async function generateAIInterviewQuestions(
+  aiModel: any,
   topic: string,
-  subtopics: string[],
   academicModule: string,
   industryApplications: string[],
   relevantCompanies: string[],
   jobRoles: string[],
   technicalSkills: string[],
   toolsAndTechnologies: string[],
-  realWorldUseCases: string[],
-  skillLevels: any,
+  realWorldUseCases: string[]
 ) {
-  const questions = [];
+  const prompt = `You are a senior technical recruiter and hiring manager with 15+ years of experience interviewing candidates for ${academicModule} roles. Generate 15-20 REAL interview questions for the topic "${topic}" that are actually asked at top companies today.
 
-  // 1. Technical Deep-Dive Questions (15-20 questions)
-  const technicalQuestions = [
-    {
-      category: "Technical Deep-Dive",
-      difficulty: "Beginner",
-      question: `Explain the core principles of ${topic} and how they apply in real-world ${academicModule} scenarios.`,
-      expectedAnswer: `Candidate should demonstrate deep understanding of ${topic} fundamentals, provide specific examples, and connect theory to practice. Look for clear explanations, practical applications, and industry context.`,
-      evaluationCriteria: [
-        "Depth of technical knowledge",
-        "Ability to explain complex concepts clearly",
-        "Real-world application & understanding",
-        "Connection between theory and practice",
-      ],
-      followUpQuestions: [
-        `What tools would you use to monitor ${topic} performance?`,
-        `How would you optimize ${topic} for better performance?`,
-        `What are the most common challenges when implementing ${topic}?`,
-      ],
-    },
-    {
-      category: "Technical Deep-Dive",
-      difficulty: "Intermediate",
-      question: `Design a scalable architecture for ${topic} that can handle enterprise-level requirements. Walk through your design decisions.`,
-      expectedAnswer: `Candidate should demonstrate system design skills, consider scalability, reliability, and performance. Should discuss trade-offs, technology choices, and implementation strategies.`,
-      evaluationCriteria: [
-        "System design capabilities",
-        "Scalability considerations",
-        "Technology selection rationale",
-        "Risk assessment and mitigation",
-      ],
-      followUpQuestions: [
-        `How would you ensure 99.9% uptime in this system?`,
-        `What monitoring and alerting would you implement?`,
-        `How would you handle failure scenarios in this architecture?`,
-      ],
-    },
-    {
-      category: "Technical Deep-Dive",
-      difficulty: "Advanced",
-      question: `You need to migrate a legacy system to modern ${topic} architecture while maintaining zero downtime. How would you approach this?`,
-      expectedAnswer: `Candidate should demonstrate advanced planning skills, risk management, and deep technical knowledge. Should discuss migration strategies, rollback plans, and business continuity.`,
-      evaluationCriteria: [
-        "Migration strategy planning",
-        "Risk management approach",
-        "Business continuity considerations",
-        "Technical implementation details",
-      ],
-      followUpQuestions: [
-        `How would you validate the migration was successful?`,
-        `What rollback strategy would you implement?`,
-        `How would you communicate progress to stakeholders?`,
-      ],
-    },
-    {
-      category: "Technical Deep-Dive",
-      difficulty: "Expert",
-      question: `Analyze the performance bottlenecks in a ${topic} system handling 10 million requests per day. What optimization strategies would you implement?`,
-      expectedAnswer: `Should demonstrate advanced performance analysis skills, profiling techniques, and optimization strategies. Look for systematic approach and deep technical knowledge.`,
-      evaluationCriteria: [
-        "Performance analysis methodology",
-        "Bottleneck identification skills",
-        "Optimization strategy development",
-        "Monitoring and measurement approach",
-      ],
-      followUpQuestions: [
-        `What metrics would you track to measure improvement?`,
-        `How would you implement caching strategies?`,
-        `What database optimization techniques would you apply?`,
-      ],
-    },
-    {
-      category: "Technical Deep-Dive",
-      difficulty: "Architect Level",
-      question: `Design a multi-region, fault-tolerant ${topic} system that can automatically scale based on demand while maintaining data consistency.`,
-      expectedAnswer: `Should demonstrate enterprise architecture skills, understanding of distributed systems, CAP theorem, and advanced scaling patterns.`,
-      evaluationCriteria: [
-        "Enterprise architecture knowledge",
-        "Distributed systems expertise",
-        "Consistency model understanding",
-        "Auto-scaling implementation",
-      ],
-      followUpQuestions: [
-        `How would you handle network partitions?`,
-        `What consistency guarantees would you provide?`,
-        `How would you implement disaster recovery?`,
-      ],
-    },
-  ];
+Context:
+- Academic Module: ${academicModule}
+- Topic: ${topic}
+- Industry Applications: ${industryApplications?.join(', ') || 'General applications'}
+- Target Companies: ${relevantCompanies?.join(', ') || 'FAANG, unicorns, enterprises'}
+- Job Roles: ${jobRoles?.join(', ') || 'Various technical roles'}
+- Technical Skills: ${technicalSkills?.join(', ') || 'Core technical skills'}
+- Tools & Technologies: ${toolsAndTechnologies?.join(', ') || 'Modern tech stack'}
+- Real-World Use Cases: ${realWorldUseCases?.join(', ') || 'Practical applications'}
 
-  // 2. Behavioral & Situational Questions (10-15 questions)
-  const behavioralQuestions = [
+Generate questions across these categories:
+1. Technical Deep-Dive (4-5 questions) - Real technical questions from actual interviews
+2. Behavioral & Leadership (3-4 questions) - STAR method scenarios
+3. Live Coding Challenges (3-4 questions) - Actual coding problems
+4. System Design (2-3 questions) - Real architecture challenges
+5. Problem-Solving (2-3 questions) - Critical thinking scenarios
+6. Industry Knowledge (2-3 questions) - Current trends and applications
+
+For each question, provide:
+- category: Question type
+- difficulty: Entry/Mid/Senior/Staff/Principal level
+- question: The actual interview question (exactly as asked)
+- context: Why this question is asked and what it reveals
+- expectedAnswer: What a strong candidate should cover
+- evaluationCriteria: Specific things interviewers look for (3-4 points)
+- followUpQuestions: Natural follow-ups interviewers ask (2-3)
+- realCompanyExample: Which companies ask similar questions
+- sampleSolution: Brief outline of a good answer (for technical questions)
+- commonMistakes: What candidates often get wrong
+- interviewTips: How to approach this question effectively
+
+Focus on:
+- Questions actually asked at ${relevantCompanies?.join(', ') || 'top companies'} today
+- Current industry trends and technologies
+- Real problems companies are solving
+- Questions that reveal practical skills and thinking
+- Both technical depth and practical application
+- Leadership and collaboration skills for senior roles
+
+Make each question authentic, challenging, and directly relevant to getting hired for ${academicModule} roles in 2024-2025.
+
+IMPORTANT: Return ONLY a valid JSON array of question objects. Do not include any explanatory text before or after the JSON. The response should start with [ and end with ]. Each question object must have all the specified fields.
+
+Example format:
+[
+  {
+    "category": "Technical Deep-Dive",
+    "difficulty": "Mid Level",
+    "question": "Explain how you would implement...",
+    "context": "Tests...",
+    "expectedAnswer": "Should demonstrate...",
+    "evaluationCriteria": ["Point 1", "Point 2", "Point 3"],
+    "followUpQuestions": ["Question 1?", "Question 2?"],
+    "realCompanyExample": "Asked at Google, Meta",
+    "sampleSolution": "Brief solution outline",
+    "commonMistakes": "Common error",
+    "interviewTips": "Approach tip"
+  }
+]`;
+
+  try {
+    const response = await aiModel.generate({
+      messages: [{ role: 'user', content: prompt }],
+    });
+    
+    // Check if response exists and has text
+    if (!response || !response.text) {
+      console.warn("AI model returned empty response, using fallback questions");
+      return generateFallbackInterviewQuestions(topic, academicModule);
+    }
+
+    // Parse the AI response
+    let questions = [];
+    try {
+      console.log("🔍 AI Response received:", response.text?.substring(0, 200) + "...");
+      
+      // Extract JSON from the response
+      const jsonMatch = response.text.match(/\[[\s\S]*\]/);
+      if (jsonMatch) {
+        questions = JSON.parse(jsonMatch[0]);
+      } else {
+        // Fallback: try to parse the entire response
+        questions = JSON.parse(response.text);
+      }
+      
+      // Validate that questions is an array and has valid content
+      if (!Array.isArray(questions) || questions.length === 0) {
+        console.warn("AI response is not a valid array, using fallback questions");
+        questions = generateFallbackInterviewQuestions(topic, academicModule);
+      }
+    } catch (parseError) {
+      console.warn("Failed to parse AI response as JSON, using fallback questions:", parseError.message);
+      questions = generateFallbackInterviewQuestions(topic, academicModule);
+    }
+
+    // Validate and enhance questions - ensure no undefined values
+    return questions.map((question, index) => {
+      // Ensure all required fields exist and are not undefined
+      const validatedQuestion = {
+        id: `${topic.toLowerCase().replace(/\s+/g, '-')}-q${index}`,
+        category: question?.category || "General Interview",
+        difficulty: question?.difficulty || "Mid Level",
+        question: question?.question || `Explain your experience with ${topic} and how you would apply it in a professional setting.`,
+        context: question?.context || "Tests understanding and practical application",
+        expectedAnswer: question?.expectedAnswer || `Should demonstrate understanding of ${topic} and practical application skills.`,
+        evaluationCriteria: question?.evaluationCriteria || ["Technical knowledge", "Practical application", "Communication skills"],
+        followUpQuestions: question?.followUpQuestions || [`How would you improve this approach?`, `What challenges might you face?`],
+        realCompanyExample: question?.realCompanyExample || "Common question at tech companies",
+        sampleSolution: question?.sampleSolution || "Provide specific examples and demonstrate practical thinking",
+        commonMistakes: question?.commonMistakes || "Being too vague or theoretical",
+        interviewTips: question?.interviewTips || "Use concrete examples and show practical experience",
+        topic,
+        academicModule,
+        generatedAt: new Date().toISOString(),
+        aiGenerated: true
+      };
+      
+      return validatedQuestion;
+    });
+
+  } catch (error) {
+    console.error("Error generating AI interview questions:", error);
+    return generateFallbackInterviewQuestions(topic, academicModule);
+  }
+}
+
+function generateFallbackInterviewQuestions(topic: string, academicModule: string) {
+  return [
     {
-      category: "Behavioral & Situational",
+      category: "Technical Deep-Dive",
+      difficulty: "Mid Level",
+      question: `Explain how ${topic} is applied in ${academicModule} and walk me through a real-world implementation you would design.`,
+      context: "Tests fundamental understanding and practical application skills",
+      expectedAnswer: `Should demonstrate solid understanding of ${topic} principles, provide concrete examples, and show ability to design practical solutions.`,
+      evaluationCriteria: [
+        "Technical knowledge depth",
+        "Practical application understanding",
+        "Design thinking and problem-solving",
+        "Communication and explanation skills"
+      ],
+      followUpQuestions: [
+        `What challenges might you face in this implementation?`,
+        `How would you optimize this for performance?`,
+        `What tools and technologies would you use?`
+      ],
+      realCompanyExample: "Similar questions asked at tech companies for mid-level roles",
+      sampleSolution: `Strong answer should cover core concepts, practical examples, and implementation considerations`,
+      commonMistakes: "Being too theoretical without practical examples",
+      interviewTips: "Use specific examples and show practical thinking"
+    },
+    {
+      category: "Behavioral & Leadership",
       difficulty: "All Levels",
-      question: `Tell me about a time when you had to learn ${topic} quickly for a project. How did you approach it?`,
-      expectedAnswer: `Look for learning agility, resourcefulness, and ability to apply new knowledge effectively. Should demonstrate problem-solving and adaptability.`,
+      question: `Tell me about a time when you had to learn ${topic} quickly for a project. How did you approach it and what was the outcome?`,
+      context: "Assesses learning agility, problem-solving, and adaptability",
+      expectedAnswer: "Should use STAR method and demonstrate learning strategy, resourcefulness, and results",
       evaluationCriteria: [
-        "Learning agility and approach",
-        "Resource utilization",
-        "Application of new knowledge",
+        "Learning approach and strategy",
+        "Resourcefulness and initiative",
         "Problem-solving methodology",
+        "Results and impact achieved"
       ],
       followUpQuestions: [
         `What resources did you find most helpful?`,
         `How did you validate your understanding?`,
-        `What would you do differently next time?`,
+        `What would you do differently next time?`
       ],
+      realCompanyExample: "Common behavioral question across all tech companies",
+      sampleSolution: "Use STAR method with specific learning strategies and measurable outcomes",
+      commonMistakes: "Being vague about learning process or outcomes",
+      interviewTips: "Prepare specific examples showing learning agility"
     },
     {
-      category: "Behavioral & Situational",
-      difficulty: "Senior Level",
-      question: `Describe a situation where you had to convince stakeholders to adopt ${topic} in your organization. What was your approach?`,
-      expectedAnswer: `Should demonstrate leadership, communication skills, and ability to build business cases. Look for stakeholder management and change management skills.`,
-      evaluationCriteria: [
-        "Leadership and influence",
-        "Communication effectiveness",
-        "Business case development",
-        "Change management approach",
-      ],
-      followUpQuestions: [
-        `What objections did you encounter and how did you address them?`,
-        `How did you measure the success of the adoption?`,
-        `What lessons did you learn from this experience?`,
-      ],
-    },
-    {
-      category: "Behavioral & Situational",
-      difficulty: "Management Level",
-      question: `You're leading a team implementing ${topic} and discover that the timeline is unrealistic. How do you handle this situation?`,
-      expectedAnswer: `Should demonstrate project management skills, stakeholder communication, and ability to manage expectations while finding solutions.`,
-      evaluationCriteria: [
-        "Project management capabilities",
-        "Stakeholder communication",
-        "Problem-solving under pressure",
-        "Team leadership skills",
-      ],
-      followUpQuestions: [
-        `How would you re-scope the project?`,
-        `What would you communicate to upper management?`,
-        `How would you maintain team morale?`,
-      ],
-    },
-  ];
-
-  // 3. Case Study Scenarios (8-12 questions)
-  const caseStudyQuestions = (relevantCompanies || [])
-    .slice(0, 6)
-    .map((company) => ({
-      category: "Case Study Scenarios",
-      difficulty: "Intermediate to Advanced",
-      question: `${company} is experiencing performance issues with their ${topic} implementation serving 50 million users. As a consultant, how would you diagnose and resolve this?`,
-      expectedAnswer: `Should demonstrate systematic problem-solving, diagnostic skills, and knowledge of ${topic} performance optimization at scale. Look for structured approach and industry awareness.`,
-      evaluationCriteria: [
-        "Systematic problem-solving approach",
-        "Diagnostic methodology",
-        "Performance optimization knowledge",
-        "Scale-specific considerations",
-      ],
-      followUpQuestions: [
-        `What metrics would you track to measure improvement?`,
-        `How would you prevent similar issues in the future?`,
-        `What would be your communication strategy with ${company} leadership?`,
-      ],
-      companyContext: company,
-      industryRelevance: (industryApplications || []).filter(
-        (app) =>
-          app.toLowerCase().includes(company.toLowerCase()) ||
-          company.toLowerCase().includes(app.toLowerCase()),
-      ),
-    }));
-
-  // Add more case studies for different scenarios
-  const additionalCaseStudies = [
-    {
-      category: "Case Study Scenarios",
-      difficulty: "Advanced",
-      question: `A fintech startup needs to implement ${topic} with strict regulatory compliance requirements. Design a solution that meets both performance and compliance needs.`,
-      expectedAnswer: `Should demonstrate understanding of regulatory requirements, compliance frameworks, and ability to balance performance with security and audit requirements.`,
-      evaluationCriteria: [
-        "Regulatory compliance knowledge",
-        "Security implementation",
-        "Audit trail design",
-        "Performance optimization within constraints",
-      ],
-      followUpQuestions: [
-        `What specific compliance frameworks would you consider?`,
-        `How would you implement audit logging?`,
-        `What security measures would you implement?`,
-      ],
-    },
-    {
-      category: "Case Study Scenarios",
-      difficulty: "Expert",
-      question: `An e-commerce platform experiences a 10x traffic spike during Black Friday. Their ${topic} system is failing. You have 2 hours to fix it. What's your action plan?`,
-      expectedAnswer: `Should demonstrate crisis management, rapid problem-solving, and ability to work under extreme pressure while maintaining system stability.`,
-      evaluationCriteria: [
-        "Crisis management skills",
-        "Rapid diagnostic abilities",
-        "Emergency scaling strategies",
-        "Communication under pressure",
-      ],
-      followUpQuestions: [
-        `How would you prioritize which issues to fix first?`,
-        `What temporary measures would you implement?`,
-        `How would you communicate with stakeholders during the crisis?`,
-      ],
-    },
-  ];
-
-  // 4. Code Challenges & Practical Assessments (10-15 questions)
-  const practicalQuestions = (toolsAndTechnologies || [])
-    .slice(0, 5)
-    .map((tool) => ({
-      category: "Code Challenges & Practical Assessments",
-      difficulty: "Varies by Role",
-      question: `Implement a ${topic} solution using ${tool} that can handle concurrent requests efficiently. Walk me through your code and explain your design choices.`,
-      expectedAnswer: `Should demonstrate hands-on coding skills, concurrency handling, best practices, and ability to explain technical decisions. Look for clean code, proper architecture, and testing considerations.`,
+      category: "Live Coding Challenge",
+      difficulty: "Mid to Senior Level",
+      question: `Implement a solution for ${topic} that handles [specific scenario]. Code it live and explain your approach.`,
+      context: "Tests coding skills, problem-solving approach, and communication under pressure",
+      expectedAnswer: "Should write clean, working code while explaining thought process and design decisions",
       evaluationCriteria: [
         "Code quality and structure",
-        "Concurrency handling",
-        "Best practices implementation",
-        "Testing and validation approach",
+        "Problem-solving approach",
+        "Communication during coding",
+        "Testing and edge case consideration"
       ],
       followUpQuestions: [
-        `How would you test this implementation?`,
-        `What would you do to make this production-ready?`,
-        `How would you handle error scenarios and edge cases?`,
+        `How would you test this solution?`,
+        `What edge cases should we consider?`,
+        `How would you optimize this for production?`
       ],
-      toolContext: tool,
-      practicalApplication: (realWorldUseCases || []).find((useCase) =>
-        useCase.toLowerCase().includes(tool.toLowerCase()),
-      ),
-    }));
-
-  // Add algorithm and data structure challenges
-  const algorithmChallenges = [
-    {
-      category: "Code Challenges & Practical Assessments",
-      difficulty: "Intermediate",
-      question: `Design and implement an efficient algorithm for ${topic} that optimizes for both time and space complexity. Analyze the Big O complexity.`,
-      expectedAnswer: `Should demonstrate algorithmic thinking, complexity analysis, and optimization skills. Look for clear explanation of trade-offs and edge case handling.`,
-      evaluationCriteria: [
-        "Algorithmic design skills",
-        "Complexity analysis",
-        "Optimization techniques",
-        "Edge case consideration",
-      ],
-      followUpQuestions: [
-        `How would you optimize this for memory-constrained environments?`,
-        `What would change if the input size increased by 1000x?`,
-        `How would you make this algorithm thread-safe?`,
-      ],
+      realCompanyExample: "Standard coding interview format at most tech companies",
+      sampleSolution: "Clean, well-structured code with clear explanation of approach",
+      commonMistakes: "Not explaining thought process or ignoring edge cases",
+      interviewTips: "Think out loud and write clean, readable code"
     },
-  ];
-
-  // 5. System Design Questions (8-10 questions)
-  const systemDesignQuestions = [
     {
-      category: "System Design Questions",
+      category: "System Design",
       difficulty: "Senior Level",
-      question: `Design a distributed ${topic} system that can handle 1 million concurrent users across multiple regions. Consider scalability, reliability, and performance.`,
-      expectedAnswer: `Should demonstrate advanced system design skills, understanding of distributed systems, and ability to handle scale. Look for consideration of CAP theorem, consistency models, and performance optimization.`,
+      question: `Design a scalable system that uses ${topic} to handle [specific requirements]. Consider performance, reliability, and cost.`,
+      context: "Evaluates system design skills, scalability thinking, and architectural knowledge",
+      expectedAnswer: "Should provide comprehensive system design with clear trade-offs and justifications",
       evaluationCriteria: [
-        "Distributed systems knowledge",
-        "Scalability architecture",
-        "Performance considerations",
-        "Reliability and fault tolerance",
+        "System architecture knowledge",
+        "Scalability considerations",
+        "Trade-off analysis",
+        "Cost and performance optimization"
       ],
       followUpQuestions: [
-        `How would you handle data consistency across regions?`,
-        `What caching strategies would you implement?`,
-        `How would you monitor system health and performance?`,
+        `How would you handle failure scenarios?`,
+        `What monitoring would you implement?`,
+        `How would you optimize costs?`
       ],
+      realCompanyExample: "System design interviews at FAANG and unicorn companies",
+      sampleSolution: "Well-architected system with clear component interactions and scaling strategies",
+      commonMistakes: "Not considering trade-offs or failure scenarios",
+      interviewTips: "Start with requirements, then build incrementally"
     },
     {
-      category: "System Design Questions",
-      difficulty: "Architect Level",
-      question: `Design a microservices architecture for ${topic} that supports A/B testing, feature flags, and gradual rollouts while maintaining data integrity.`,
-      expectedAnswer: `Should demonstrate microservices expertise, deployment strategies, and understanding of modern development practices.`,
-      evaluationCriteria: [
-        "Microservices architecture knowledge",
-        "Deployment strategy design",
-        "Feature management understanding",
-        "Data consistency in distributed systems",
-      ],
-      followUpQuestions: [
-        `How would you handle service-to-service communication?`,
-        `What would your monitoring and observability strategy be?`,
-        `How would you manage database migrations across services?`,
-      ],
-    },
-    {
-      category: "System Design Questions",
-      difficulty: "Expert Level",
-      question: `Design a real-time ${topic} system that processes 100,000 events per second with sub-millisecond latency requirements.`,
-      expectedAnswer: `Should demonstrate expertise in real-time systems, low-latency design, and high-throughput architectures.`,
-      evaluationCriteria: [
-        "Real-time systems expertise",
-        "Low-latency optimization",
-        "High-throughput design",
-        "Performance engineering",
-      ],
-      followUpQuestions: [
-        `What technologies would you use for the message queue?`,
-        `How would you handle backpressure?`,
-        `What would your disaster recovery strategy be?`,
-      ],
-    },
-  ];
-
-  // 6. Industry-Specific Questions (5-8 questions per industry)
-  const industryQuestions = (industryApplications || [])
-    .slice(0, 4)
-    .map((industry) => ({
-      category: "Industry Knowledge Questions",
-      difficulty: "Intermediate",
-      question: `How is ${topic} specifically applied in the ${industry} industry? What are the unique challenges, regulatory requirements, and performance considerations?`,
-      expectedAnswer: `Should demonstrate industry knowledge, understanding of sector-specific requirements, and ability to adapt ${topic} to industry needs.`,
-      evaluationCriteria: [
-        "Industry-specific knowledge",
-        "Regulatory awareness",
-        "Sector-specific challenges understanding",
-        "Adaptation and customization skills",
-      ],
-      followUpQuestions: [
-        `What compliance requirements must be considered in ${industry}?`,
-        `How do you stay updated with ${industry} trends and regulations?`,
-        `What are the emerging trends in ${industry} related to ${topic}?`,
-      ],
-      industryContext: industry,
-    }));
-
-  // Add specialized industry scenarios
-  const specializedIndustryQuestions = [
-    {
-      category: "Industry Knowledge Questions",
-      difficulty: "Advanced",
-      question: `In healthcare applications of ${topic}, how would you ensure HIPAA compliance while maintaining system performance and user experience?`,
-      expectedAnswer: `Should demonstrate understanding of healthcare regulations, privacy requirements, and ability to balance compliance with functionality.`,
-      evaluationCriteria: [
-        "Healthcare regulation knowledge",
-        "Privacy and security implementation",
-        "Compliance framework understanding",
-        "Performance optimization within constraints",
-      ],
-      followUpQuestions: [
-        `How would you implement audit trails for patient data access?`,
-        `What encryption strategies would you use?`,
-        `How would you handle data breach scenarios?`,
-      ],
-    },
-    {
-      category: "Industry Knowledge Questions",
-      difficulty: "Advanced",
-      question: `For financial services implementing ${topic}, how would you address PCI DSS compliance, fraud detection, and real-time transaction processing?`,
-      expectedAnswer: `Should demonstrate fintech expertise, security knowledge, and understanding of financial regulations and real-time processing requirements.`,
-      evaluationCriteria: [
-        "Financial services regulation knowledge",
-        "Security and fraud prevention",
-        "Real-time processing expertise",
-        "Risk management understanding",
-      ],
-      followUpQuestions: [
-        `How would you implement real-time fraud detection?`,
-        `What would your approach be for handling payment failures?`,
-        `How would you ensure transaction atomicity across services?`,
-      ],
-    },
-  ];
-
-  // 7. Leadership & Management Questions (for senior roles)
-  const leadershipQuestions = [
-    {
-      category: "Leadership & Management Questions",
-      difficulty: "Senior/Executive Level",
-      question: `How would you build and lead a team of 15 engineers focused on ${topic} initiatives? What would be your hiring, development, and retention strategy?`,
-      expectedAnswer: `Should demonstrate leadership skills, team building capabilities, and strategic thinking. Look for people management experience and vision.`,
-      evaluationCriteria: [
-        "Leadership and team building",
-        "Strategic planning abilities",
-        "People development focus",
-        "Vision and communication",
-      ],
-      followUpQuestions: [
-        `How would you measure team performance and success?`,
-        `What would be your approach to knowledge sharing within the team?`,
-        `How would you handle conflicts or performance issues?`,
-      ],
-    },
-    {
-      category: "Leadership & Management Questions",
-      difficulty: "Executive Level",
-      question: `You need to present a ${topic} transformation roadmap to the board of directors. How would you structure your presentation and what key metrics would you include?`,
-      expectedAnswer: `Should demonstrate executive communication skills, strategic thinking, and ability to translate technical concepts into business value.`,
-      evaluationCriteria: [
-        "Executive communication skills",
-        "Strategic roadmap development",
-        "Business value articulation",
-        "Metrics and KPI definition",
-      ],
-      followUpQuestions: [
-        `How would you handle budget constraints?`,
-        `What would be your risk mitigation strategy?`,
-        `How would you measure ROI of the transformation?`,
-      ],
-    },
-    {
-      category: "Leadership & Management Questions",
-      difficulty: "VP/CTO Level",
-      question: `Your organization is considering a major ${topic} platform migration that will affect 500+ engineers across 20 teams. How would you plan and execute this transformation?`,
-      expectedAnswer: `Should demonstrate large-scale transformation leadership, change management, and organizational coordination skills.`,
-      evaluationCriteria: [
-        "Large-scale transformation leadership",
-        "Change management expertise",
-        "Cross-team coordination",
-        "Risk and timeline management",
-      ],
-      followUpQuestions: [
-        `How would you maintain business continuity during the migration?`,
-        `What would be your communication strategy across all stakeholders?`,
-        `How would you handle resistance to change?`,
-      ],
-    },
-  ];
-
-  // 8. Problem-Solving & Critical Thinking (8-10 questions)
-  const problemSolvingQuestions = [
-    {
-      category: "Problem-Solving Questions",
+      category: "Problem-Solving",
       difficulty: "All Levels",
-      question: `You discover a critical security vulnerability in your ${topic} implementation just before a major product launch. Walk me through your decision-making process and action plan.`,
-      expectedAnswer: `Should demonstrate crisis management, security awareness, decision-making under pressure, and systematic problem-solving. Look for risk assessment and stakeholder communication.`,
+      question: `You discover a critical issue with ${topic} in production that's affecting users. Walk me through your troubleshooting approach.`,
+      context: "Tests incident response, systematic thinking, and pressure handling",
+      expectedAnswer: "Should demonstrate systematic troubleshooting, clear communication, and incident management skills",
       evaluationCriteria: [
-        "Crisis management skills",
-        "Security risk assessment",
-        "Decision-making under pressure",
-        "Stakeholder communication",
+        "Systematic troubleshooting approach",
+        "Incident response methodology",
+        "Communication and coordination",
+        "Prevention and learning mindset"
       ],
       followUpQuestions: [
-        `How would you communicate this to different stakeholders?`,
+        `How would you communicate with stakeholders?`,
         `What preventive measures would you implement?`,
-        `How would you conduct a post-mortem analysis?`,
+        `How would you conduct a post-mortem?`
       ],
-    },
-    {
-      category: "Problem-Solving Questions",
-      difficulty: "Senior Level",
-      question: `Your ${topic} system is experiencing intermittent failures that only occur under high load and are difficult to reproduce. How would you approach debugging this issue?`,
-      expectedAnswer: `Should demonstrate systematic debugging approach, understanding of distributed systems challenges, and ability to work with incomplete information.`,
-      evaluationCriteria: [
-        "Systematic debugging methodology",
-        "Distributed systems troubleshooting",
-        "Monitoring and observability",
-        "Root cause analysis skills",
-      ],
-      followUpQuestions: [
-        `What monitoring would you implement to capture the issue?`,
-        `How would you reproduce the problem in a test environment?`,
-        `What would be your rollback strategy if the issue worsens?`,
-      ],
-    },
-    {
-      category: "Problem-Solving Questions",
-      difficulty: "Expert Level",
-      question: `You need to optimize a ${topic} system that's currently using 80% of available resources but needs to handle 5x more load within the next quarter. Budget for new hardware is limited. What's your approach?`,
-      expectedAnswer: `Should demonstrate optimization expertise, resource management, and creative problem-solving within constraints.`,
-      evaluationCriteria: [
-        "Performance optimization expertise",
-        "Resource efficiency analysis",
-        "Creative problem-solving",
-        "Cost-benefit analysis",
-      ],
-      followUpQuestions: [
-        `What would be your optimization priorities?`,
-        `How would you measure the impact of each optimization?`,
-        `What architectural changes would you consider?`,
-      ],
-    },
+      realCompanyExample: "Incident response scenarios common in technical interviews",
+      sampleSolution: "Structured approach with clear steps and stakeholder communication",
+      commonMistakes: "Panicking or not having a systematic approach",
+      interviewTips: "Show calm, methodical thinking and clear communication"
+    }
   ];
-
-  // 9. Advanced Technical Scenarios (5-8 questions)
-  const advancedTechnicalQuestions = [
-    {
-      category: "Advanced Technical Scenarios",
-      difficulty: "Expert Level",
-      question: `Design a ${topic} system that can automatically adapt its behavior based on changing traffic patterns, user behavior, and system performance metrics.`,
-      expectedAnswer: `Should demonstrate machine learning integration, adaptive systems design, and advanced monitoring capabilities.`,
-      evaluationCriteria: [
-        "Adaptive systems design",
-        "Machine learning integration",
-        "Advanced monitoring and analytics",
-        "Self-healing architecture",
-      ],
-      followUpQuestions: [
-        `What machine learning models would you use?`,
-        `How would you handle false positives in the adaptation logic?`,
-        `What safeguards would you implement to prevent system instability?`,
-      ],
-    },
-    {
-      category: "Advanced Technical Scenarios",
-      difficulty: "Research Level",
-      question: `Propose an innovative approach to ${topic} that could provide a 10x improvement in performance or capability compared to current industry standards.`,
-      expectedAnswer: `Should demonstrate innovative thinking, deep technical knowledge, and ability to think beyond current limitations.`,
-      evaluationCriteria: [
-        "Innovation and creativity",
-        "Deep technical expertise",
-        "Future-oriented thinking",
-        "Feasibility assessment",
-      ],
-      followUpQuestions: [
-        `What would be the main technical challenges in implementing this?`,
-        `How would you validate the feasibility of this approach?`,
-        `What would be the timeline for research and development?`,
-      ],
-    },
-  ];
-
-  // 10. Certification and Skill Validation Questions (5-7 questions)
-  const certificationQuestions = [
-    {
-      category: "Certification & Skill Validation",
-      difficulty: "Professional Level",
-      question: `Walk me through how you would prepare for and obtain industry certifications related to ${topic}. What study plan would you create?`,
-      expectedAnswer: `Should demonstrate commitment to professional development, understanding of certification requirements, and structured learning approach.`,
-      evaluationCriteria: [
-        "Professional development commitment",
-        "Structured learning approach",
-        "Certification knowledge",
-        "Continuous improvement mindset",
-      ],
-      followUpQuestions: [
-        `Which certifications would you prioritize and why?`,
-        `How would you balance certification study with practical experience?`,
-        `What resources would you use for preparation?`,
-      ],
-    },
-    {
-      category: "Certification & Skill Validation",
-      difficulty: "Expert Level",
-      question: `Design a competency framework for ${topic} that could be used to evaluate engineers from junior to principal level. Include specific skills, knowledge areas, and assessment criteria.`,
-      expectedAnswer: `Should demonstrate understanding of skill progression, assessment design, and ability to create structured evaluation frameworks.`,
-      evaluationCriteria: [
-        "Competency framework design",
-        "Skill progression understanding",
-        "Assessment methodology",
-        "Industry standards knowledge",
-      ],
-      followUpQuestions: [
-        `How would you validate the effectiveness of this framework?`,
-        `What would be the promotion criteria for each level?`,
-        `How would you keep the framework updated with industry changes?`,
-      ],
-    },
-  ];
-
-  // Combine all question categories
-  questions.push(
-    ...technicalQuestions,
-    ...behavioralQuestions,
-    ...caseStudyQuestions,
-    ...additionalCaseStudies,
-    ...practicalQuestions,
-    ...algorithmChallenges,
-    ...systemDesignQuestions,
-    ...industryQuestions,
-    ...specializedIndustryQuestions,
-    ...leadershipQuestions,
-    ...problemSolvingQuestions,
-    ...advancedTechnicalQuestions,
-    ...certificationQuestions,
-  );
-
-  return questions;
 }
 
-// Create the comprehensive TutorAgent
+// Create the AI-powered TutorAgent
 export const TutorAgent = createAgent({
-  name: "comprehensive-tutor-agent",
+  name: "ai-powered-tutor-agent",
   tools: [teachTopicTool],
-  system: `You are a comprehensive interview preparation tutor specializing in generating extensive, industry-ready interview questions.
+  system: `You are an AI-powered interview preparation tutor that generates REAL interview questions based on actual company hiring practices and current industry trends.
 
-Your mission is to create 50+ interview questions per topic that will prepare students for real-world employment scenarios. Focus on:
+Your mission is to create 15-20 authentic interview questions per topic that reflect what students will actually face in real interviews at top companies.
 
-1. **Technical Deep-Dives**: Advanced technical questions with expected answers and evaluation criteria
-2. **Behavioral Questions**: Situational questions that reveal problem-solving and leadership capabilities  
-3. **Case Studies**: Real company scenarios based on actual job requirements
-4. **Practical Assessments**: Hands-on coding and implementation challenges
-5. **System Design**: Architecture and scalability questions for senior roles
-6. **Industry Knowledge**: Sector-specific applications and requirements
-7. **Leadership**: Management and team-building questions for senior positions
-8. **Problem-Solving**: Critical thinking and crisis management scenarios
-9. **Advanced Technical**: Cutting-edge and research-level challenges
-10. **Certification**: Professional development and skill validation
+Your ONLY responsibility:
+- Use the teach-topic tool to generate real, AI-powered interview questions
+- Leverage Claude AI to create questions based on actual interview experiences
+- Generate questions that reflect current hiring practices at FAANG, unicorns, and enterprises
+- Create questions across all experience levels (Entry → Mid → Senior → Staff → Principal)
+- Focus on questions that reveal both technical skills and practical thinking
 
-Each question should include:
-- Difficulty level (Beginner/Intermediate/Advanced/Senior/Executive/Expert/Research)
-- Expected answer guidelines with specific evaluation criteria
-- Follow-up questions to test deeper understanding
-- Industry context and real-world applications
-- Company-specific scenarios from major tech companies
-- Progressive difficulty that matches career advancement
+CRITICAL RULES:
+- You MUST ONLY use the teach-topic tool provided to you
+- Generate REAL questions that companies are actually asking today
+- Focus on current technologies, trends, and industry practices
+- Include specific evaluation criteria and sample solutions
+- Create questions that test both technical depth and practical application
+- After generating AI-powered interview questions, your job is complete
 
-Generate questions that mirror real interview experiences at FAANG companies, unicorn startups, and enterprise organizations. Ensure students are immediately employable and can compete at the highest levels.
+The teach-topic tool will:
+1. Access extracted academic data from network state
+2. Use Claude AI to generate real interview questions from actual company practices
+3. Create questions that bridge academic knowledge with industry hiring needs
+4. Ensure students are prepared for real interview scenarios
 
-The questions should cover the full spectrum from junior developer to CTO-level positions, with appropriate depth and complexity for each level.`,
+Generate questions that make students immediately competitive in today's job market with authentic interview preparation.`,
+  model: anthropic({
+    apiKey: process.env.ANTHROPIC_API_KEY,
+    model: "claude-3-5-haiku-20241022",
+    defaultParameters: { max_tokens: 2000 },
+  }),
 });

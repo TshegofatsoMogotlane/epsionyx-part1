@@ -60,6 +60,7 @@
     "date-fns": "^4.1.0",
     "embla-carousel-react": "^8.6.0",
     "framer-motion-3d": "^12.4.13",
+    "gsap": "^3.13.0",
     "inngest": "^3.40.3",
     "input-otp": "^1.4.2",
     "leva": "^0.10.1",
