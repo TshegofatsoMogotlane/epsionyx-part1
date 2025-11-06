@@ -7,15 +7,17 @@ import { documentScanningAgent } from './agents/documentScanningAgent'
 import { IndustryAgent } from './agents/IndustryAgent'
 import { TutorAgent } from './agents/TutorAgent'
 
+import { config } from '@/lib/config'
+
 // Create the agent network
 const agentNetwork = createNetwork({
-  name: 'epsionyx-agent-network',
+  name: config.inngest.networkName,
   agents: [documentScanningAgent, IndustryAgent, TutorAgent, databaseAgent],
   defaultModel: anthropic({
-    apiKey: process.env.ANTHROPIC_API_KEY,
-    model: 'claude-3-5-haiku-20241022',
+    apiKey: config.anthropic.apiKey,
+    model: config.anthropic.model,
     defaultParameters: {
-      max_tokens: 1000,
+      max_tokens: config.anthropic.maxTokens,
     },
   }),
   defaultRouter: ({ network }: { network: any }) => {

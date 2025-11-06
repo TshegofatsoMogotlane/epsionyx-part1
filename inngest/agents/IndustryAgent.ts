@@ -1,6 +1,7 @@
 // Enhanced IndustryAgent.ts - Real Industry Tasks with AI Generation
 import { createAgent, createTool } from "@inngest/agent-kit";
 import { anthropic } from "@inngest/agent-kit";
+import { config } from "@/lib/config";
 
 const suggestIndustryTasksTool = createTool({
   name: "suggest-industry-tasks",
@@ -40,9 +41,9 @@ const suggestIndustryTasksTool = createTool({
 
       // Use Claude AI to generate real industry tasks
       const aiModel = anthropic({
-        apiKey: process.env.ANTHROPIC_API_KEY,
-        model: "claude-3-5-haiku-20241022",
-        defaultParameters: { max_tokens: 4000 },
+        apiKey: config.anthropic.apiKey,
+        model: config.anthropic.model,
+        defaultParameters: { max_tokens: config.anthropic.maxTokens },
       });
 
       const comprehensiveProjects = await generateRealIndustryProjects(
@@ -335,9 +336,9 @@ export const IndustryAgent = createAgent({
   
   Generate projects that make students immediately hireable with real-world, applicable skills.`,
   model: anthropic({
-    apiKey: process.env.ANTHROPIC_API_KEY,
-    model: "claude-3-5-haiku-20241022",
-    defaultParameters: { max_tokens: 2000 },
+    apiKey: config.anthropic.apiKey,
+    model: config.anthropic.model,
+    defaultParameters: { max_tokens: config.anthropic.maxTokens },
   }),
   tools: [suggestIndustryTasksTool],
 });

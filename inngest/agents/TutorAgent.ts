@@ -2,6 +2,7 @@
 import { createAgent, createTool } from "@inngest/agent-kit";
 import { anthropic } from "@inngest/agent-kit";
 import { z } from "zod";
+import { config } from "@/lib/config";
 
 const teachTopicTool = createTool({
   name: "teach-topic",
@@ -45,9 +46,9 @@ const teachTopicTool = createTool({
 
       // Use Claude AI to generate real interview questions
       const aiModel = anthropic({
-        apiKey: process.env.ANTHROPIC_API_KEY,
-        model: "claude-3-5-haiku-20241022",
-        defaultParameters: { max_tokens: 4000 },
+        apiKey: config.anthropic.apiKey,
+        model: config.anthropic.model,
+        defaultParameters: { max_tokens: config.anthropic.maxTokens },
       });
 
       // Generate real interview questions using AI
@@ -432,8 +433,8 @@ The teach-topic tool will:
 
 Generate questions that make students immediately competitive in today's job market with authentic interview preparation.`,
   model: anthropic({
-    apiKey: process.env.ANTHROPIC_API_KEY,
-    model: "claude-3-5-haiku-20241022",
-    defaultParameters: { max_tokens: 2000 },
+    apiKey: config.anthropic.apiKey,
+    model: config.anthropic.model,
+    defaultParameters: { max_tokens: config.anthropic.maxTokens },
   }),
 });

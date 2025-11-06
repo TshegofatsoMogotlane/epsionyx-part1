@@ -5,6 +5,7 @@ import { z } from "zod";
 import convex from "@/lib/convexClient";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { config } from "@/lib/config";
 
 const saveToDatabaseTool = createTool({
   name: "save-to-database",
