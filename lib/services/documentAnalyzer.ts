@@ -1,7 +1,8 @@
-// Dynamic document analyzer using AI instead of hardcoded analysis
+// Enhanced dynamic document analyzer using AI instead of hardcoded analysis
 import { anthropic } from "@inngest/agent-kit";
 import { config } from "../config";
 import { DynamicDataService } from "./dynamicDataService";
+import { PDFContentExtractor } from "./pdfContentExtractor";
 
 export interface DocumentAnalysis {
   documentId: string;
@@ -26,6 +27,7 @@ export interface DocumentAnalysis {
 export class DocumentAnalyzer {
   private aiModel: any;
   private dynamicDataService: DynamicDataService;
+  private pdfExtractor: PDFContentExtractor;
 
   constructor() {
     this.aiModel = anthropic({
@@ -34,6 +36,7 @@ export class DocumentAnalyzer {
       defaultParameters: { max_tokens: config.anthropic.maxTokens },
     });
     this.dynamicDataService = new DynamicDataService();
+    this.pdfExtractor = new PDFContentExtractor();
   }
 
   async analyzeDocument(
@@ -42,12 +45,20 @@ export class DocumentAnalyzer {
     fileName: string
   ): Promise<DocumentAnalysis> {
     try {
-      console.log("🔍 Starting AI-powered document analysis for:", fileName);
+      console.log("🔍 Starting DEEP AI-powered document analysis for:", fileName);
 
-      // Step 1: Analyze document content with AI
-      const contentAnalysis = await this.analyzeDocumentContent(fileName, documentUrl);
+      // Step 1: Extract actual PDF content for deep analysis
+      const pdfContent = await this.pdfExtractor.extractContent(documentUrl);
+      console.log(`📄 Extracted ${pdfContent.text.length} characters from ${pdfContent.pages} pages`);
+
+      // Step 2: Perform deep content analysis
+      const deepAnalysis = await this.pdfExtractor.deepAnalyzeContent(pdfContent);
+      console.log(`🎯 Deep analysis found ${deepAnalysis.allTopics?.length || 0} topics and ${deepAnalysis.allSubtopics?.length || 0} subtopics`);
+
+      // Step 3: Analyze document content with AI using actual content
+      const contentAnalysis = await this.analyzeDocumentContent(fileName, documentUrl, pdfContent.text, deepAnalysis);
       
-      // Step 2: Get dynamic industry data
+      // Step 4: Get dynamic industry data
       const [companies, salaryRanges, technologies, certifications] = await Promise.all([
         this.dynamicDataService.getRelevantCompanies(
           contentAnalysis.industryType,
@@ -64,15 +75,15 @@ export class DocumentAnalyzer {
         ),
       ]);
 
-      // Step 3: Combine AI analysis with dynamic data
+      // Step 5: Combine AI analysis with dynamic data
       const analysis: DocumentAnalysis = {
         documentId,
         fileName,
         documentSummary: contentAnalysis.summary,
         academicModule: contentAnalysis.academicModule,
         difficultyLevel: contentAnalysis.difficultyLevel,
-        coreTopics: contentAnalysis.coreTopics,
-        subtopics: contentAnalysis.subtopics,
+        coreTopics: [...(contentAnalysis.coreTopics || []), ...(deepAnalysis.allTopics || [])].slice(0, 15),
+        subtopics: [...(contentAnalysis.subtopics || []), ...(deepAnalysis.allSubtopics || [])].slice(0, 25),
         industryApplications: contentAnalysis.industryApplications,
         relevantCompanies: companies,
         jobRoles: contentAnalysis.jobRoles,
@@ -95,10 +106,18 @@ export class DocumentAnalyzer {
     }
   }
 
-  private async analyzeDocumentContent(fileName: string, documentUrl?: string) {
+  private async analyzeDocumentContent(fileName: string, documentUrl?: string, actualContent?: string, deepAnalysis?: any) {
     const prompt = `Analyze this academic document: "${fileName}"
 
-    Based on the filename and any available content, provide a comprehensive analysis:
+    ACTUAL DOCUMENT CONTENT (${actualContent?.length || 0} characters):
+    ${actualContent?.substring(0, 6000) || 'Content not available'}...
+
+    DEEP ANALYSIS RESULTS:
+    - Topics Found: ${deepAnalysis?.allTopics?.join(', ') || 'None'}
+    - Subtopics Found: ${deepAnalysis?.allSubtopics?.join(', ') || 'None'}
+    - Key Terms: ${deepAnalysis?.keyTerms?.join(', ') || 'None'}
+
+    Based on the ACTUAL CONTENT and deep analysis, provide a comprehensive analysis:
 
     1. Determine the academic module/field of study
     2. Identify 6-8 core topics this document likely covers
@@ -115,12 +134,12 @@ export class DocumentAnalyzer {
       "academicModule": "Primary field of study",
       "industryType": "Primary industry category",
       "difficultyLevel": "Beginner to Advanced",
-      "coreTopics": ["Topic 1", "Topic 2", ...],
-      "subtopics": ["Subtopic 1", "Subtopic 2", ...],
-      "industryApplications": ["Application 1", "Application 2", ...],
-      "jobRoles": ["Role 1", "Role 2", ...],
-      "technicalSkills": ["Skill 1", "Skill 2", ...],
-      "realWorldUseCases": ["Use case 1", "Use case 2", ...],
+      "coreTopics": ["Topic 1", "Topic 2"],
+      "subtopics": ["Subtopic 1", "Subtopic 2"],
+      "industryApplications": ["Application 1", "Application 2"],
+      "jobRoles": ["Role 1", "Role 2"],
+      "technicalSkills": ["Skill 1", "Skill 2"],
+      "realWorldUseCases": ["Use case 1", "Use case 2"],
       "skillLevels": {
         "Beginner": ["Basic skill 1", "Basic skill 2"],
         "Intermediate": ["Intermediate skill 1", "Intermediate skill 2"],
@@ -153,7 +172,7 @@ export class DocumentAnalyzer {
     
     if (filenameLower.includes("data") && (filenameLower.includes("science") || filenameLower.includes("analysis"))) {
       return {
-        summary: `Data science and analytics document focusing on statistical analysis, machine learning, and business intelligence.`,
+        summary: "Data science and analytics document focusing on statistical analysis, machine learning, and business intelligence.",
         academicModule: "Data Science & Analytics",
         industryType: "Technology",
         difficultyLevel: "Beginner to Advanced",
@@ -204,7 +223,7 @@ export class DocumentAnalyzer {
 
   private getGenericAnalysis(fileName: string) {
     return {
-      summary: `Academic document covering interdisciplinary topics with practical industry applications.`,
+      summary: "Academic document covering interdisciplinary topics with practical industry applications.",
       academicModule: "Interdisciplinary Studies",
       industryType: "General",
       difficultyLevel: "Beginner to Advanced",
@@ -250,7 +269,7 @@ export class DocumentAnalyzer {
   private formatSalaryRanges(salaryRanges: any[]) {
     const formatted: any = {};
     salaryRanges.forEach(range => {
-      formatted[range.level] = `$${range.min.toLocaleString()} - $${range.max.toLocaleString()}`;
+      formatted[range.level] = `${range.min.toLocaleString()} - ${range.max.toLocaleString()}`;
     });
     return formatted;
   }

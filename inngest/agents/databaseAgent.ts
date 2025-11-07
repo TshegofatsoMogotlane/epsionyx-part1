@@ -84,14 +84,27 @@ const saveToDatabaseTool = createTool({
       const saveResult = await convex.mutation(api.documents.updateDocumentWithExtractedDataInternal, {
         id: documentId as Id<"documents">,
         fileName: comprehensiveData.fileName || "Unknown File",
-        summary: `Academic module covering ${comprehensiveData.coreTopics?.length || 0} core topics with ${comprehensiveData.industryProjects?.totalProjects || 0} industry projects and ${comprehensiveData.interviewPreparation?.totalQuestions || 0} interview questions.`,
+        summary: `Academic module covering ${comprehensiveData.coreTopics?.length || 0} core topics and ${comprehensiveData.subtopics?.length || 0} subtopics with ${comprehensiveData.industryProjects?.totalProjects || 0} industry projects and ${comprehensiveData.interviewPreparation?.totalQuestions || 0} interview questions.`,
         extractedTopics: comprehensiveData.coreTopics || [],
+        subtopics: comprehensiveData.subtopics || [],
         module: comprehensiveData.academicModule || "Unknown Module",
         industryTasks: industryTasks?.categories?.flatMap(cat => 
-          cat.projects?.map(project => `${project.title}: ${project.description}`) || []
+          cat.projects?.map(project => {
+            // Store rich project data, not just strings
+            if (typeof project === 'object' && project.title) {
+              return project; // Store the full project object
+            }
+            return `${project.title || project}: ${project.description || ''}`;
+          }) || []
         ) || [],
         interviewQuestions: interviewQuestions?.categories?.flatMap(cat =>
-          cat.questions?.map(q => `${q.question} (${q.type})`) || []
+          cat.questions?.map(q => {
+            // Store rich question data, not just strings
+            if (typeof q === 'object' && q.question) {
+              return q; // Store the full question object
+            }
+            return `${q.question || q} (${q.category || q.type || 'General'})`;
+          }) || []
         ) || [],
         status: "completed"
       });

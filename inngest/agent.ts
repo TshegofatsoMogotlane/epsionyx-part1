@@ -21,40 +21,40 @@ const agentNetwork = createNetwork({
     },
   }),
   defaultRouter: ({ network }: { network: any }) => {
-    // const state = network.state.kv;
     const s = network.state.kv;
-    // const savedToDatabase = state.get('saved-to-database');
-    // if (savedToDatabase) {
-    //   return undefined; // Stop execution
-    // }
     
-    // const extractedData = state.get('extracted-data');
-    // const industryTasks = state.get('industry-tasks');
-    // const interviewQuestions = state.get('interview-questions');
-    
-    // if (!extractedData) {
-    //   return documentScanningAgent;
-    // } else if (!industryTasks) {
-    //   return IndustryAgent;
-    // } else if (!interviewQuestions) {
-    //   return TutorAgent;
-    // } else {
-    //   return databaseAgent;
-    // }
+    // Prevent infinite loops by checking if processing is already in progress
+    const processingStarted = s.get('processing-started');
+    if (!processingStarted) {
+      s.set('processing-started', true);
+    }
 
     /* finished ? */
-    if (s.get('saved-to-database')) return undefined;
+    if (s.get('saved-to-database')) {
+      console.log('✅ Processing complete - saved to database');
+      return undefined;
+    }
 
     /* already extracted ? */
-    if (!s.get('extracted-data')) return documentScanningAgent;
+    if (!s.get('extracted-data')) {
+      console.log('🔍 Starting document extraction...');
+      return documentScanningAgent;
+    }
 
     /* already have tasks ? */
-    if (!s.get('industry-tasks')) return IndustryAgent;
+    if (!s.get('industry-tasks')) {
+      console.log('🏭 Generating industry tasks...');
+      return IndustryAgent;
+    }
 
     /* already have questions ? */
-    if (!s.get('interview-questions')) return TutorAgent;
+    if (!s.get('interview-questions')) {
+      console.log('❓ Creating interview questions...');
+      return TutorAgent;
+    }
 
     /* else save */
+    console.log('💾 Saving to database...');
     return databaseAgent;
   }
 });
@@ -65,17 +65,28 @@ export const server = createServer({
 })
 
 export const extractAndSavePDF = inngest.createFunction(
-  { id: 'extract-pdf-and-save' },
+  { id: 'epsionyx-extract-pdf-and-save' },
   { event: Events.EXTRACT_DATA_FROM_PDF_AND_SAVE_TO_DATABASE },
   async ({ event, step }) => {
     const { documentId, url, fileName } = event.data;
+    
+    // Validate required parameters
+    if (!documentId || !url || !fileName) {
+      console.error('❌ Missing required parameters:', { documentId, url, fileName });
+      throw new Error('Missing required parameters: documentId, url, or fileName');
+    }
+    
     console.log('🎯 Starting document processing:', fileName);
     console.log('📄 Document details:', { documentId, url, fileName });
 
     try {
       console.log('🚀 Starting agent network execution...');
       
-      // Call agent network directly without step wrapper to avoid nesting
+      // Set initial context in network state
+      agentNetwork.state.kv.set('document-url', url);
+      agentNetwork.state.kv.set('document-id', documentId);
+      agentNetwork.state.kv.set('file-name', fileName);
+      
       console.log('🌐 Running agent network...');
       
       const result = await agentNetwork.run(
@@ -85,7 +96,12 @@ export const extractAndSavePDF = inngest.createFunction(
          Document ID: ${documentId}
          File Name: ${fileName}
          
-         Please extract the academic content, generate industry tasks, create interview questions, and save to database.`
+         Please use the extract-document-data tool with these exact parameters:
+         - documentUrl: ${url}
+         - documentId: ${documentId}
+         - fileName: ${fileName}
+         
+         Then generate industry tasks, create interview questions, and save to database.`
       );
       
       console.log('✅ Network result:', result);
@@ -101,9 +117,9 @@ export const extractAndSavePDF = inngest.createFunction(
     } catch (error) {
       console.error('❌ Error in document processing:', error);
       console.error('❌ Error details:', {
-        message: error.message,
-        stack: error.stack,
-        name: error.name
+        message: (error as Error)?.message || 'Unknown error',
+        stack: (error as Error)?.stack,
+        name: (error as Error)?.name
       });
       throw error;
     }

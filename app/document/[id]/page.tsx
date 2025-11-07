@@ -8,9 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { BookOpen, Briefcase, MessageSquare, FileText, Clock, Target } from "lucide-react"
-import VAPIInterviewCoach from "@/components/VAPIInterviewCoach"
-import VAPIDebugTest from "@/components/VAPIDebugTest"
-import VAPISimpleTest from "@/components/VAPISimpleTest"
+
 
 const Document = () => {
     const params = useParams<{id: string}>()
@@ -58,17 +56,41 @@ const Document = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Target className="w-5 h-5" />
-                Academic Topics ({document.extractedTopics.length})
+                Core Academic Topics ({document.extractedTopics.length})
               </CardTitle>
               <CardDescription>
-                Key learning topics extracted from your document
+                Main learning topics extracted from your document through deep AI analysis
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                 {document.extractedTopics.map((topic, index) => (
-                  <Badge key={index} variant="secondary" className="justify-start">
+                  <Badge key={index} variant="secondary" className="justify-start p-2">
                     {topic}
+                  </Badge>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Subtopics - Show comprehensive analysis */}
+        {document.subtopics && document.subtopics.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BookOpen className="w-5 h-5" />
+                Detailed Subtopics ({document.subtopics.length})
+              </CardTitle>
+              <CardDescription>
+                Comprehensive breakdown of all concepts, methods, and techniques covered
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-1">
+                {document.subtopics.map((subtopic, index) => (
+                  <Badge key={index} variant="outline" className="justify-start text-xs p-1">
+                    {subtopic}
                   </Badge>
                 ))}
               </div>
@@ -89,12 +111,58 @@ const Document = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {document.industryTasks.map((task, index) => (
-                  <div key={index} className="p-4 border rounded-lg bg-gray-50">
-                    <p className="text-sm">{task}</p>
-                  </div>
-                ))}
+              <div className="space-y-4">
+                {document.industryTasks.map((task, index) => {
+                  // Handle both string format and object format
+                  const isStringFormat = typeof task === 'string';
+                  const title = isStringFormat ? task.split(':')[0] : task.title;
+                  const description = isStringFormat ? task.split(':').slice(1).join(':') : task.description;
+                  
+                  return (
+                    <div key={index} className="p-4 border rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 hover:shadow-md transition-shadow">
+                      <div className="flex items-start justify-between mb-2">
+                        <h4 className="font-semibold text-lg text-gray-900">{title}</h4>
+                        {!isStringFormat && task.level && (
+                          <Badge variant="outline" className="ml-2">
+                            {task.level}
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-700 mb-3">{description}</p>
+                      
+                      {!isStringFormat && task.technologies && (
+                        <div className="mb-3">
+                          <p className="text-xs font-medium text-gray-600 mb-1">Technologies:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {task.technologies.map((tech: string, techIndex: number) => (
+                              <Badge key={techIndex} variant="secondary" className="text-xs">
+                                {tech}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {!isStringFormat && task.deliverables && (
+                        <div className="mb-3">
+                          <p className="text-xs font-medium text-gray-600 mb-1">Key Deliverables:</p>
+                          <ul className="text-xs text-gray-600 list-disc list-inside">
+                            {task.deliverables.slice(0, 3).map((deliverable: string, delIndex: number) => (
+                              <li key={delIndex}>{deliverable}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {!isStringFormat && (task.timeEstimate || task.portfolioValue) && (
+                        <div className="flex justify-between text-xs text-gray-500 mt-2 pt-2 border-t">
+                          {task.timeEstimate && <span>⏱️ {task.timeEstimate}</span>}
+                          {task.portfolioValue && <span>💼 High Portfolio Value</span>}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
@@ -113,32 +181,68 @@ const Document = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {document.interviewQuestions.map((question, index) => (
-                  <div key={index} className="p-4 border rounded-lg bg-blue-50">
-                    <p className="text-sm font-medium">{question}</p>
-                  </div>
-                ))}
+              <div className="space-y-4">
+                {document.interviewQuestions.map((question, index) => {
+                  // Handle both string format and object format
+                  const isStringFormat = typeof question === 'string';
+                  const questionText = isStringFormat ? question.split(' (')[0] : question.question;
+                  const category = isStringFormat ? question.split(' (')[1]?.replace(')', '') : question.category;
+                  
+                  return (
+                    <div key={index} className="p-4 border rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 hover:shadow-md transition-shadow">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            {category && (
+                              <Badge variant="outline" className="text-xs">
+                                {category}
+                              </Badge>
+                            )}
+                            {!isStringFormat && question.difficulty && (
+                              <Badge variant="secondary" className="text-xs">
+                                {question.difficulty}
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="font-medium text-gray-900">{questionText}</p>
+                        </div>
+                      </div>
+                      
+                      {!isStringFormat && question.context && (
+                        <p className="text-sm text-gray-600 mb-2">{question.context}</p>
+                      )}
+                      
+                      {!isStringFormat && question.evaluationCriteria && (
+                        <div className="mb-3">
+                          <p className="text-xs font-medium text-gray-600 mb-1">What interviewers look for:</p>
+                          <ul className="text-xs text-gray-600 list-disc list-inside">
+                            {question.evaluationCriteria.slice(0, 3).map((criteria: string, critIndex: number) => (
+                              <li key={critIndex}>{criteria}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {!isStringFormat && question.interviewTips && (
+                        <div className="bg-yellow-50 p-2 rounded text-xs text-gray-700 mt-2">
+                          <span className="font-medium">💡 Tip:</span> {question.interviewTips}
+                        </div>
+                      )}
+                      
+                      {!isStringFormat && question.realCompanyExample && (
+                        <div className="text-xs text-gray-500 mt-2 pt-2 border-t">
+                          🏢 {question.realCompanyExample}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
         )}
 
-        {/* VAPI Debug Test - Remove this after testing */}
-        <VAPIDebugTest />
-        
-        {/* VAPI Simple Test - More detailed debugging */}
-        <VAPISimpleTest />
 
-        {/* VAPI Interview Coach */}
-        {document.interviewQuestions && document.interviewQuestions.length > 0 && (
-          <VAPIInterviewCoach
-            interviewQuestions={document.interviewQuestions}
-            topic={document.module || "General"}
-            onSessionStart={() => console.log('Interview practice started')}
-            onSessionEnd={() => console.log('Interview practice ended')}
-          />
-        )}
 
         {/* Empty State */}
         {(!document.extractedTopics || document.extractedTopics.length === 0) &&

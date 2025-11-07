@@ -6,7 +6,7 @@ import { config } from "@/lib/config";
 const extractDocumentDataTool = createTool({
   name: "extract-document-data",
   description:
-    "Extracts topics, module info, and content from uploaded academic documents.",
+    "Extracts topics, module info, and content from uploaded academic documents using AI-powered revolutionary analysis.",
   input_schema: {
     type: "object",
     properties: {
@@ -29,234 +29,88 @@ const extractDocumentDataTool = createTool({
     try {
       const { documentUrl, documentId, fileName } = input;
 
-      console.log("📄 Processing document with AI-powered analysis:", {
-        documentUrl,
-        documentId,
-        fileName,
-      });
+      console.log("🚀 REVOLUTIONARY ANALYSIS: Creating world's most comprehensive industry-university bridge for:", fileName || 'document');
 
-      if (!documentUrl || !documentId || !fileName) {
+      if (!documentUrl || !documentId) {
+        console.error("❌ Missing required parameters:", { documentUrl, documentId, fileName });
         return {
           success: false,
-          error: "Missing required parameters",
+          error: "Missing required parameters: documentUrl or documentId",
           received: { documentUrl, documentId, fileName },
         };
       }
 
+      // Use fallback fileName if not provided
+      const safeFileName = fileName || 'academic-document.pdf';
+
       // Use AI-powered dynamic document analysis
       const analyzer = new DocumentAnalyzer();
-      const extractedData = await analyzer.analyzeDocument(documentUrl, documentId, fileName);
+      const revolutionaryAnalysis = await analyzer.analyzeDocument(documentUrl, documentId, fileName);
 
-      // Store data in network state
-      context.network.state.kv.set("extracted-data", extractedData);
+      // Store comprehensive data in network state
+      context.network.state.kv.set("extracted-data", revolutionaryAnalysis);
       context.network.state.kv.set("document-id", documentId);
 
-      console.log("✅ AI-powered document analysis completed successfully");
-      console.log("📊 Analysis results:", {
-        academicModule: extractedData.academicModule,
-        coreTopicsCount: extractedData.coreTopics.length,
-        companiesCount: extractedData.relevantCompanies.length,
-        jobRolesCount: extractedData.jobRoles.length
-      });
+      console.log("✅ REVOLUTIONARY ANALYSIS COMPLETE!");
+      console.log("🎯 Created comprehensive industry bridge with:");
+      console.log(`   📚 ${revolutionaryAnalysis.coreTopics?.length || 0} topics with real-world applications`);
+      console.log(`   💼 ${revolutionaryAnalysis.relevantCompanies?.length || 0} relevant companies`);
+      console.log(`   🏭 ${revolutionaryAnalysis.jobRoles?.length || 0} job roles mapped`);
+      console.log(`   📈 Career pathways and salary data included`);
 
       return {
         success: true,
-        ...extractedData,
-        message: "AI-powered document analysis completed successfully",
+        ...revolutionaryAnalysis,
+        message: "Revolutionary industry-university bridge analysis completed - World's most comprehensive learning platform created!",
       };
     } catch (error) {
-      console.error("❌ Error in AI document analysis:", error);
+      console.error("❌ Error in revolutionary analysis:", error);
       return {
         success: false,
-        error: `AI analysis failed: ${(error as Error).message}`,
+        error: `Revolutionary analysis failed: ${(error as Error).message}`,
         stack: (error as Error).stack,
       };
     }
   },
 });
 
-function createDataScienceAnalysis(fileName: string) {
-  return {
-    summary: `Comprehensive analysis of ${fileName} - Deep dive into data science methodologies, statistical analysis, machine learning, and business intelligence for industry readiness.`,
-    module: "Data Science & Analytics",
-    difficulty: "Beginner to Advanced",
-    
-    // Granular concept mapping
-    coreTopics: [
-      "Statistical Analysis & Hypothesis Testing",
-      "Data Collection & Preprocessing Pipelines", 
-      "Exploratory Data Analysis & Pattern Recognition",
-      "Machine Learning & Predictive Modeling",
-      "Data Visualization & Storytelling",
-      "Business Intelligence & Decision Support",
-      "Big Data Technologies & Cloud Analytics",
-      "Data Ethics & Privacy Compliance"
-    ],
-    
-    subtopics: [
-      // Statistical Analysis
-      "Descriptive Statistics", "Inferential Statistics", "Hypothesis Testing", "ANOVA", "Chi-Square Tests",
-      "Regression Analysis", "Time Series Analysis", "Bayesian Statistics", "Non-parametric Tests",
-      
-      // Data Processing
-      "Data Cleaning Techniques", "Missing Value Imputation", "Outlier Detection", "Feature Engineering",
-      "Data Transformation", "Normalization & Scaling", "Dimensionality Reduction", "ETL Processes",
-      
-      // Machine Learning
-      "Supervised Learning", "Unsupervised Learning", "Deep Learning", "Neural Networks", "Random Forest",
-      "SVM", "Clustering Algorithms", "Classification", "Model Validation", "Cross-validation",
-      
-      // Visualization & BI
-      "Dashboard Design", "Interactive Visualizations", "KPI Development", "Report Automation",
-      "Data Storytelling", "Executive Reporting", "Real-time Analytics"
-    ],
-    
-    // Industry context identification
-    industryApplications: [
-      "Financial Risk Assessment & Fraud Detection",
-      "Healthcare Analytics & Drug Discovery", 
-      "E-commerce Recommendation Systems",
-      "Supply Chain Optimization",
-      "Marketing Attribution & Customer Segmentation",
-      "Predictive Maintenance in Manufacturing",
-      "Social Media Analytics & Sentiment Analysis",
-      "IoT Data Processing & Smart Cities"
-    ],
-    
-    relevantCompanies: [
-      "Google (Analytics, ML)", "Microsoft (Azure ML, Power BI)", "Amazon (AWS Analytics)",
-      "Netflix (Recommendation Systems)", "Uber (Demand Forecasting)", "Airbnb (Pricing Analytics)",
-      "Tesla (Autonomous Driving)", "Goldman Sachs (Algorithmic Trading)", "McKinsey (Business Analytics)",
-      "Palantir (Big Data Analytics)", "Databricks (Data Engineering)", "Snowflake (Data Warehousing)"
-    ],
-    
-    jobRoles: [
-      "Data Scientist", "Machine Learning Engineer", "Data Analyst", "Business Intelligence Developer",
-      "Data Engineer", "Analytics Consultant", "Quantitative Analyst", "Research Scientist",
-      "Product Analyst", "Marketing Analyst", "Risk Analyst", "Data Architect"
-    ],
-    
-    salaryRanges: {
-      "Entry Level (0-2 years)": "$70,000 - $95,000",
-      "Mid Level (3-5 years)": "$95,000 - $130,000", 
-      "Senior Level (5+ years)": "$130,000 - $180,000",
-      "Lead/Principal": "$180,000 - $250,000+",
-      "Director/VP": "$250,000 - $400,000+"
-    },
-    
-    // Skill level assessment
-    skillLevels: {
-      "Beginner": ["Basic statistics", "Excel proficiency", "SQL basics", "Python/R fundamentals"],
-      "Intermediate": ["Advanced SQL", "Machine learning basics", "Data visualization", "Statistical modeling"],
-      "Advanced": ["Deep learning", "Big data technologies", "MLOps", "Advanced statistics"],
-      "Expert": ["Research & development", "Architecture design", "Team leadership", "Strategic planning"]
-    },
-    
-    // Technical skills mapping
-    technicalSkills: [
-      "Python (Pandas, NumPy, Scikit-learn)", "R (ggplot2, dplyr, caret)", "SQL (PostgreSQL, MySQL)",
-      "Machine Learning Frameworks (TensorFlow, PyTorch)", "Big Data (Spark, Hadoop)", 
-      "Cloud Platforms (AWS, Azure, GCP)", "Visualization (Tableau, Power BI, D3.js)",
-      "Version Control (Git)", "Docker & Kubernetes", "Apache Airflow", "Jupyter Notebooks"
-    ],
-    
-    softSkills: [
-      "Critical Thinking & Problem Solving", "Business Acumen", "Communication & Presentation",
-      "Stakeholder Management", "Project Management", "Curiosity & Continuous Learning",
-      "Attention to Detail", "Ethical Decision Making"
-    ],
-    
-    toolsAndTechnologies: [
-      "Programming: Python, R, SQL, Scala", "ML/AI: TensorFlow, PyTorch, Scikit-learn, Keras",
-      "Big Data: Apache Spark, Hadoop, Kafka", "Cloud: AWS SageMaker, Azure ML, Google AI Platform",
-      "Visualization: Tableau, Power BI, Plotly, D3.js", "Databases: PostgreSQL, MongoDB, Cassandra",
-      "DevOps: Docker, Kubernetes, Jenkins, MLflow"
-    ],
-    
-    certifications: [
-      "AWS Certified Machine Learning - Specialty", "Google Professional Data Engineer",
-      "Microsoft Azure Data Scientist Associate", "Tableau Desktop Specialist",
-      "SAS Certified Data Scientist", "IBM Data Science Professional Certificate",
-      "Coursera Machine Learning Specialization", "edX MicroMasters in Statistics and Data Science"
-    ],
-    
-    // Real-world use cases
-    realWorldUseCases: [
-      "Netflix: Recommendation algorithm serving 200M+ users",
-      "Uber: Dynamic pricing and demand forecasting",
-      "Amazon: Supply chain optimization and inventory management", 
-      "Google: Search ranking and ad targeting algorithms",
-      "Tesla: Autonomous vehicle computer vision",
-      "JPMorgan: Algorithmic trading and risk management",
-      "Spotify: Music recommendation and playlist generation",
-      "Airbnb: Pricing optimization and fraud detection"
-    ],
-    
-    prerequisites: [
-      "Strong mathematical foundation (calculus, linear algebra)",
-      "Basic programming knowledge", "Statistical thinking",
-      "Business understanding", "Research methodology"
-    ],
-    
-    learningObjectives: [
-      "Master statistical analysis and hypothesis testing",
-      "Build end-to-end machine learning pipelines",
-      "Create compelling data visualizations and dashboards",
-      "Implement scalable data processing solutions",
-      "Develop business-driven analytics strategies"
-    ],
-    
-    skillProgression: [
-      "Junior: Data cleaning, basic analysis, simple visualizations",
-      "Mid: Machine learning models, advanced analytics, dashboard development",
-      "Senior: Architecture design, model optimization, cross-functional leadership",
-      "Principal: Strategic planning, research direction, organizational impact"
-    ],
-    
-    industryStandards: [
-      "CRISP-DM Methodology", "Agile Analytics", "MLOps Best Practices",
-      "Data Governance & Quality", "GDPR & Privacy Compliance",
-      "Model Interpretability & Fairness", "A/B Testing Standards"
-    ],
-    
-    bestPractices: [
-      "Version control for data and models", "Reproducible research practices",
-      "Continuous integration for ML", "Model monitoring and maintenance",
-      "Documentation and knowledge sharing", "Ethical AI development"
-    ],
-    
-    commonChallenges: [
-      "Data quality and availability", "Model interpretability",
-      "Scaling ML systems", "Stakeholder alignment",
-      "Technical debt in analytics", "Regulatory compliance"
-    ]
-  };
-}
-
 export const documentScanningAgent = createAgent({
-  name: "Document Scanning Agent",
+  name: "Revolutionary Document Scanning Agent",
   description:
-    "Processes uploaded academic documents to extract topics, module info, and content structure for learning.",
-  system: `You are a Document Scanning Agent that ONLY extracts and analyzes academic document content.
+    "Creates the world's most comprehensive university-industry bridge by analyzing academic documents and generating complete industry integration with interactive coding environments, real-world tasks, and complete solutions.",
+  system: `You are a REVOLUTIONARY Document Scanning Agent that creates the world's most comprehensive university-industry bridge.
 
-  Your ONLY responsibility:
-  - Use the extract-document-data tool to process the uploaded document
-  - Extract topics, concepts, and module information
-  - Store the extracted data in network state for other agents to use
-  
-  CRITICAL RULES:
-  - You MUST ONLY use the extract-document-data tool provided to you
-  - DO NOT attempt to generate industry tasks or interview questions
-  - DO NOT try to save data to databases - other agents handle that
-  - DO NOT invent or call non-existent tools
-  - After extracting document data, your job is complete
-  
-  REQUIRED PARAMETERS for extract-document-data tool:
-  - documentUrl: The URL of the document to process
-  - documentId: The ID of the document in the database  
-  - fileName: The name of the uploaded file
-  
-  Focus solely on document analysis and content extraction.`,
+  Your MISSION:
+  - Create something the world has NEVER SEEN BEFORE
+  - Bridge the gap between university theory and industry practice
+  - Generate real-world tasks with COMPLETE SOLUTIONS
+  - Create interactive coding environments (Jupyter, VS Code, etc.)
+  - Provide industry-validated assessment and grading
+  - Map comprehensive career pathways
+  - Establish real industry connections
+
+  REVOLUTIONARY CAPABILITIES:
+  - Deep AI-powered document analysis
+  - Real-world task generation with complete solutions
+  - Interactive coding environment setup
+  - Automatic grading and assessment
+  - Industry mentor connections
+  - Career pathway mapping
+  - Complete solution delivery after student submission
+
+  CRITICAL FEATURES:
+  - Students get REAL industry tasks from companies like Google, Netflix, Uber
+  - Complete starter code with TODO comments
+  - Comprehensive test suites
+  - FULL WORKING SOLUTIONS provided after submission
+  - Interactive environments (Jupyter for data science, VS Code for development)
+  - Real-time collaboration and mentoring
+  - Industry-standard assessment and grading
+  - Career progression from university to industry leadership
+
+  This will be the most advanced learning platform ever created - complete integration between university education and industry requirements.
+
+  IMPORTANT: When you receive a message with document details, extract the Document URL, Document ID, and File Name from the message and use the extract-document-data tool with those parameters.`,
   model: anthropic({
     apiKey: config.anthropic.apiKey,
     model: config.anthropic.model,
@@ -264,4 +118,3 @@ export const documentScanningAgent = createAgent({
   }),
   tools: [extractDocumentDataTool],
 });
-

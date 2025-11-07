@@ -13,9 +13,10 @@ export default defineSchema({
 
     // Fields for processed/extracted data
     extractedTopics: v.optional(v.array(v.string())),
-    industryTasks: v.optional(v.array(v.string())),
+    subtopics: v.optional(v.array(v.string())), // Add subtopics field
+    industryTasks: v.optional(v.array(v.any())), // Support both strings and rich objects
     teachingResults: v.optional(v.array(v.string())),
-    interviewQuestions: v.optional(v.array(v.string())),
+    interviewQuestions: v.optional(v.array(v.any())), // Support both strings and rich objects
     module: v.optional(v.string()),          
     textExtract: v.optional(v.string()),      
     pageCount: v.optional(v.number()),        
