@@ -7,7 +7,8 @@ import { Id } from "@/convex/_generated/dataModel"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { BookOpen, Briefcase, MessageSquare, FileText, Clock, Target } from "lucide-react"
+import { BookOpen, Briefcase, MessageSquare, FileText, Clock, Target, Code, Play, ExternalLink, Laptop, Database, Terminal } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 
 const Document = () => {
@@ -49,6 +50,157 @@ const Document = () => {
         </div>
 
         <Separator />
+
+        {/* Industry Tools Dashboard */}
+        <Card className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Laptop className="w-5 h-5" />
+              Industry Tools & Development Environment
+            </CardTitle>
+            <CardDescription>
+              Access professional tools and environments used in the industry for hands-on learning and project development
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Development Environments */}
+              <div className="space-y-2">
+                <h4 className="font-medium text-sm text-gray-700">💻 Development IDEs</h4>
+                <div className="space-y-1">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full justify-start text-xs"
+                    onClick={() => window.open('https://vscode.dev', '_blank')}
+                  >
+                    <Code className="w-3 h-3 mr-2" />
+                    VS Code Online
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full justify-start text-xs"
+                    onClick={() => window.open('https://replit.com', '_blank')}
+                  >
+                    <Terminal className="w-3 h-3 mr-2" />
+                    Replit IDE
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full justify-start text-xs"
+                    onClick={() => window.open('https://codepen.io', '_blank')}
+                  >
+                    <ExternalLink className="w-3 h-3 mr-2" />
+                    CodePen
+                  </Button>
+                </div>
+              </div>
+
+              {/* Data Science Tools */}
+              <div className="space-y-2">
+                <h4 className="font-medium text-sm text-gray-700">📊 Data Science & Analytics</h4>
+                <div className="space-y-1">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full justify-start text-xs"
+                    onClick={() => window.open('https://jupyter.org/try', '_blank')}
+                  >
+                    <Code className="w-3 h-3 mr-2" />
+                    Jupyter Notebook
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full justify-start text-xs"
+                    onClick={() => window.open('https://colab.research.google.com', '_blank')}
+                  >
+                    <Play className="w-3 h-3 mr-2" />
+                    Google Colab
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full justify-start text-xs"
+                    onClick={() => window.open('https://sqliteonline.com', '_blank')}
+                  >
+                    <Database className="w-3 h-3 mr-2" />
+                    SQL Online
+                  </Button>
+                </div>
+              </div>
+
+              {/* Assessment & Practice */}
+              <div className="space-y-2">
+                <h4 className="font-medium text-sm text-gray-700">🎯 Practice & Assessment</h4>
+                <div className="space-y-1">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full justify-start text-xs"
+                    onClick={() => window.open('https://leetcode.com', '_blank')}
+                  >
+                    <Code className="w-3 h-3 mr-2" />
+                    LeetCode
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full justify-start text-xs"
+                    onClick={() => window.open('https://hackerrank.com', '_blank')}
+                  >
+                    <Terminal className="w-3 h-3 mr-2" />
+                    HackerRank
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full justify-start text-xs"
+                    onClick={() => window.open('https://excalidraw.com', '_blank')}
+                  >
+                    <FileText className="w-3 h-3 mr-2" />
+                    System Design
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Main Action Buttons */}
+            <div className="mt-6 pt-4 border-t">
+              <div className="flex flex-wrap gap-3">
+                <Button 
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                  onClick={() => {
+                    alert('🚀 Launching Comprehensive Industry Workspace!\n\n✨ Features:\n• Multi-language IDE support\n• Real-time collaboration\n• Automated testing & grading\n• Industry mentor feedback\n• Portfolio integration\n• Live code review\n• Performance analytics\n\n🎯 Coming in next major update!');
+                  }}
+                >
+                  <Laptop className="w-4 h-4 mr-2" />
+                  Launch Industry Workspace
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    alert('🤖 AI-Powered Assessment System\n\n🎯 Features:\n• Automated code grading\n• Real-time feedback\n• Industry-standard evaluation\n• Performance benchmarking\n• Skill gap analysis\n• Personalized learning paths\n\n📈 Launching soon!');
+                  }}
+                >
+                  <Target className="w-4 h-4 mr-2" />
+                  AI Assessment System
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    alert('🎓 Industry Mentorship Program\n\n👥 Features:\n• 1-on-1 mentor sessions\n• Code review with experts\n• Career guidance\n• Interview preparation\n• Industry networking\n• Job placement assistance\n\n🚀 Coming soon!');
+                  }}
+                >
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  Get Industry Mentor
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Academic Topics */}
         {document.extractedTopics && document.extractedTopics.length > 0 && (
@@ -160,6 +312,73 @@ const Document = () => {
                           {task.portfolioValue && <span>💼 High Portfolio Value</span>}
                         </div>
                       )}
+                      
+                      {/* Industry Tools Section */}
+                      <div className="mt-4 pt-3 border-t bg-gradient-to-r from-purple-50 to-pink-50 p-3 rounded">
+                        <p className="text-sm font-medium text-gray-700 mb-2">🛠️ Industry Tools & Environments</p>
+                        <div className="flex flex-wrap gap-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="text-xs"
+                            onClick={() => window.open('https://jupyter.org/try', '_blank')}
+                          >
+                            <Code className="w-3 h-3 mr-1" />
+                            Jupyter Notebook
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="text-xs"
+                            onClick={() => window.open('https://vscode.dev', '_blank')}
+                          >
+                            <Laptop className="w-3 h-3 mr-1" />
+                            VS Code Online
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="text-xs"
+                            onClick={() => window.open('https://colab.research.google.com', '_blank')}
+                          >
+                            <Play className="w-3 h-3 mr-1" />
+                            Google Colab
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="text-xs"
+                            onClick={() => window.open('https://replit.com', '_blank')}
+                          >
+                            <Terminal className="w-3 h-3 mr-1" />
+                            Replit IDE
+                          </Button>
+                          {!isStringFormat && task.technologies?.includes('SQL') && (
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="text-xs"
+                              onClick={() => window.open('https://sqliteonline.com', '_blank')}
+                            >
+                              <Database className="w-3 h-3 mr-1" />
+                              SQL Online
+                            </Button>
+                          )}
+                        </div>
+                        <div className="mt-2">
+                          <Button 
+                            size="sm" 
+                            className="text-xs bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                            onClick={() => {
+                              // TODO: Route to internal grading system
+                              alert('🚀 Launching Industry Workspace with Auto-Grading System!\n\nFeatures:\n• Live coding environment\n• Automated testing & grading\n• Industry mentor feedback\n• Portfolio integration\n• Real-time collaboration\n\n(Coming soon in next update!)');
+                            }}
+                          >
+                            <ExternalLink className="w-3 h-3 mr-1" />
+                            Launch Industry Workspace
+                          </Button>
+                        </div>
+                      </div>
                     </div>
                   );
                 })}
@@ -234,6 +453,67 @@ const Document = () => {
                           🏢 {question.realCompanyExample}
                         </div>
                       )}
+                      
+                      {/* Interview Practice Tools */}
+                      <div className="mt-4 pt-3 border-t bg-gradient-to-r from-green-50 to-blue-50 p-3 rounded">
+                        <p className="text-sm font-medium text-gray-700 mb-2">🎯 Practice & Assessment Tools</p>
+                        <div className="flex flex-wrap gap-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="text-xs"
+                            onClick={() => {
+                              // TODO: Route to AI interview practice
+                              alert('🤖 AI Interview Coach\n\n• Practice with AI interviewer\n• Real-time feedback\n• Voice & video simulation\n• Industry-specific scenarios\n\n(Launching soon!)');
+                            }}
+                          >
+                            <MessageSquare className="w-3 h-3 mr-1" />
+                            AI Interview Coach
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="text-xs"
+                            onClick={() => window.open('https://leetcode.com', '_blank')}
+                          >
+                            <Code className="w-3 h-3 mr-1" />
+                            LeetCode Practice
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="text-xs"
+                            onClick={() => window.open('https://hackerrank.com', '_blank')}
+                          >
+                            <Terminal className="w-3 h-3 mr-1" />
+                            HackerRank
+                          </Button>
+                          {!isStringFormat && question.category?.includes('System Design') && (
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="text-xs"
+                              onClick={() => window.open('https://excalidraw.com', '_blank')}
+                            >
+                              <FileText className="w-3 h-3 mr-1" />
+                              System Design Tool
+                            </Button>
+                          )}
+                        </div>
+                        <div className="mt-2">
+                          <Button 
+                            size="sm" 
+                            className="text-xs bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700"
+                            onClick={() => {
+                              // TODO: Route to comprehensive interview system
+                              alert('🎯 Comprehensive Interview System\n\n• Mock interviews with AI\n• Real company scenarios\n• Automated scoring & feedback\n• Performance analytics\n• Industry mentor reviews\n\n(Coming in next update!)');
+                            }}
+                          >
+                            <Play className="w-3 h-3 mr-1" />
+                            Start Interview Practice
+                          </Button>
+                        </div>
+                      </div>
                     </div>
                   );
                 })}
