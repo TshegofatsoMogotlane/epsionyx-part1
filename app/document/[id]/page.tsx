@@ -1,18 +1,19 @@
 'use client'
 
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Id } from "@/convex/_generated/dataModel"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { BookOpen, Briefcase, MessageSquare, FileText, Clock, Target, Code, Play, ExternalLink, Laptop, Database, Terminal } from "lucide-react"
+import { BookOpen, Briefcase, MessageSquare, FileText, Clock, Target, Code, Play, ExternalLink, Laptop, Database, Terminal, Calculator, TrendingUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 
 const Document = () => {
     const params = useParams<{id: string}>()
+    const router = useRouter()
     const document = useQuery(api.documents.getDocumentById, { 
       id: params.id as Id<"documents"> 
     })
@@ -72,7 +73,7 @@ const Document = () => {
                     variant="outline" 
                     size="sm" 
                     className="w-full justify-start text-xs"
-                    onClick={() => window.open('https://vscode.dev', '_blank')}
+                    onClick={() => window.location.href = 'https://vscode.dev'}
                   >
                     <Code className="w-3 h-3 mr-2" />
                     VS Code Online
@@ -81,7 +82,7 @@ const Document = () => {
                     variant="outline" 
                     size="sm" 
                     className="w-full justify-start text-xs"
-                    onClick={() => window.open('https://replit.com', '_blank')}
+                    onClick={() => window.location.href = 'https://replit.com'}
                   >
                     <Terminal className="w-3 h-3 mr-2" />
                     Replit IDE
@@ -90,7 +91,7 @@ const Document = () => {
                     variant="outline" 
                     size="sm" 
                     className="w-full justify-start text-xs"
-                    onClick={() => window.open('https://codepen.io', '_blank')}
+                    onClick={() => window.location.href = 'https://codepen.io'}
                   >
                     <ExternalLink className="w-3 h-3 mr-2" />
                     CodePen
@@ -106,7 +107,7 @@ const Document = () => {
                     variant="outline" 
                     size="sm" 
                     className="w-full justify-start text-xs"
-                    onClick={() => window.open('https://jupyter.org/try', '_blank')}
+                    onClick={() => window.location.href = 'https://jupyter.org/try'}
                   >
                     <Code className="w-3 h-3 mr-2" />
                     Jupyter Notebook
@@ -115,7 +116,7 @@ const Document = () => {
                     variant="outline" 
                     size="sm" 
                     className="w-full justify-start text-xs"
-                    onClick={() => window.open('https://colab.research.google.com', '_blank')}
+                    onClick={() => window.location.href = 'https://colab.research.google.com'}
                   >
                     <Play className="w-3 h-3 mr-2" />
                     Google Colab
@@ -124,7 +125,7 @@ const Document = () => {
                     variant="outline" 
                     size="sm" 
                     className="w-full justify-start text-xs"
-                    onClick={() => window.open('https://sqliteonline.com', '_blank')}
+                    onClick={() => window.location.href = 'https://sqliteonline.com'}
                   >
                     <Database className="w-3 h-3 mr-2" />
                     SQL Online
@@ -140,7 +141,7 @@ const Document = () => {
                     variant="outline" 
                     size="sm" 
                     className="w-full justify-start text-xs"
-                    onClick={() => window.open('https://leetcode.com', '_blank')}
+                    onClick={() => window.location.href = 'https://leetcode.com'}
                   >
                     <Code className="w-3 h-3 mr-2" />
                     LeetCode
@@ -149,7 +150,7 @@ const Document = () => {
                     variant="outline" 
                     size="sm" 
                     className="w-full justify-start text-xs"
-                    onClick={() => window.open('https://hackerrank.com', '_blank')}
+                    onClick={() => window.location.href = 'https://hackerrank.com'}
                   >
                     <Terminal className="w-3 h-3 mr-2" />
                     HackerRank
@@ -158,10 +159,78 @@ const Document = () => {
                     variant="outline" 
                     size="sm" 
                     className="w-full justify-start text-xs"
-                    onClick={() => window.open('https://excalidraw.com', '_blank')}
+                    onClick={() => window.location.href = 'https://excalidraw.com'}
                   >
                     <FileText className="w-3 h-3 mr-2" />
                     System Design
+                  </Button>
+                </div>
+              </div>
+
+              {/* Accounting & Business Tools */}
+              <div className="space-y-2">
+                <h4 className="font-medium text-sm text-gray-700">💼 Accounting & Business</h4>
+                <div className="space-y-1">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full justify-start text-xs"
+                    onClick={() => window.location.href = 'https://www.office.com/launch/excel'}
+                  >
+                    <Calculator className="w-3 h-3 mr-2" />
+                    Excel Online
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full justify-start text-xs"
+                    onClick={() => window.location.href = 'https://www.excel-easy.com/vba.html'}
+                  >
+                    <Code className="w-3 h-3 mr-2" />
+                    VBA Tutorial
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full justify-start text-xs"
+                    onClick={() => window.location.href = 'https://www.office.com/launch/powerbi'}
+                  >
+                    <TrendingUp className="w-3 h-3 mr-2" />
+                    Power BI
+                  </Button>
+                </div>
+              </div>
+
+              {/* Financial Analysis Tools */}
+              <div className="space-y-2">
+                <h4 className="font-medium text-sm text-gray-700">📈 Financial Analysis</h4>
+                <div className="space-y-1">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full justify-start text-xs"
+                    onClick={() => window.location.href = 'https://docs.google.com/spreadsheets'}
+                  >
+                    <Calculator className="w-3 h-3 mr-2" />
+                    Google Sheets
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full justify-start text-xs"
+                    onClick={() => window.location.href = 'https://www.quickbooks.intuit.com'}
+                  >
+                    <Database className="w-3 h-3 mr-2" />
+                    QuickBooks
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full justify-start text-xs"
+                    onClick={() => window.location.href = 'https://www.sageone.com'}
+                  >
+                    <TrendingUp className="w-3 h-3 mr-2" />
+                    Sage Accounting
                   </Button>
                 </div>
               </div>
@@ -321,7 +390,7 @@ const Document = () => {
                             size="sm" 
                             variant="outline" 
                             className="text-xs"
-                            onClick={() => window.open('https://jupyter.org/try', '_blank')}
+                            onClick={() => window.location.href = 'https://jupyter.org/try'}
                           >
                             <Code className="w-3 h-3 mr-1" />
                             Jupyter Notebook
@@ -330,7 +399,7 @@ const Document = () => {
                             size="sm" 
                             variant="outline" 
                             className="text-xs"
-                            onClick={() => window.open('https://vscode.dev', '_blank')}
+                            onClick={() => window.location.href = 'https://vscode.dev'}
                           >
                             <Laptop className="w-3 h-3 mr-1" />
                             VS Code Online
@@ -339,7 +408,7 @@ const Document = () => {
                             size="sm" 
                             variant="outline" 
                             className="text-xs"
-                            onClick={() => window.open('https://colab.research.google.com', '_blank')}
+                            onClick={() => window.location.href = 'https://colab.research.google.com'}
                           >
                             <Play className="w-3 h-3 mr-1" />
                             Google Colab
@@ -348,7 +417,7 @@ const Document = () => {
                             size="sm" 
                             variant="outline" 
                             className="text-xs"
-                            onClick={() => window.open('https://replit.com', '_blank')}
+                            onClick={() => window.location.href = 'https://replit.com'}
                           >
                             <Terminal className="w-3 h-3 mr-1" />
                             Replit IDE
@@ -358,24 +427,43 @@ const Document = () => {
                               size="sm" 
                               variant="outline" 
                               className="text-xs"
-                              onClick={() => window.open('https://sqliteonline.com', '_blank')}
+                              onClick={() => window.location.href = 'https://sqliteonline.com'}
                             >
                               <Database className="w-3 h-3 mr-1" />
                               SQL Online
                             </Button>
+                          )}
+                          {!isStringFormat && (task.technologies?.includes('Excel') || task.technologies?.includes('VBA') || task.technologies?.includes('Accounting')) && (
+                            <>
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="text-xs"
+                                onClick={() => window.location.href = 'https://www.office.com/launch/excel'}
+                              >
+                                <Calculator className="w-3 h-3 mr-1" />
+                                Excel Online
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="text-xs"
+                                onClick={() => window.location.href = 'https://docs.google.com/spreadsheets'}
+                              >
+                                <Calculator className="w-3 h-3 mr-1" />
+                                Google Sheets
+                              </Button>
+                            </>
                           )}
                         </div>
                         <div className="mt-2">
                           <Button 
                             size="sm" 
                             className="text-xs bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-                            onClick={() => {
-                              // TODO: Route to internal grading system
-                              alert('🚀 Launching Industry Workspace with Auto-Grading System!\n\nFeatures:\n• Live coding environment\n• Automated testing & grading\n• Industry mentor feedback\n• Portfolio integration\n• Real-time collaboration\n\n(Coming soon in next update!)');
-                            }}
+                            onClick={() => router.push(`/workspace/${params.id}/${index}`)}
                           >
-                            <ExternalLink className="w-3 h-3 mr-1" />
-                            Launch Industry Workspace
+                            <Code className="w-3 h-3 mr-1" />
+                            Start Coding & Get Graded
                           </Button>
                         </div>
                       </div>
@@ -474,7 +562,7 @@ const Document = () => {
                             size="sm" 
                             variant="outline" 
                             className="text-xs"
-                            onClick={() => window.open('https://leetcode.com', '_blank')}
+                            onClick={() => window.location.href = 'https://leetcode.com'}
                           >
                             <Code className="w-3 h-3 mr-1" />
                             LeetCode Practice
@@ -483,7 +571,7 @@ const Document = () => {
                             size="sm" 
                             variant="outline" 
                             className="text-xs"
-                            onClick={() => window.open('https://hackerrank.com', '_blank')}
+                            onClick={() => window.location.href = 'https://hackerrank.com'}
                           >
                             <Terminal className="w-3 h-3 mr-1" />
                             HackerRank
@@ -493,7 +581,7 @@ const Document = () => {
                               size="sm" 
                               variant="outline" 
                               className="text-xs"
-                              onClick={() => window.open('https://excalidraw.com', '_blank')}
+                              onClick={() => window.location.href = 'https://excalidraw.com'}
                             >
                               <FileText className="w-3 h-3 mr-1" />
                               System Design Tool

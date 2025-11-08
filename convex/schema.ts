@@ -24,5 +24,20 @@ export default defineSchema({
     classification: v.optional(v.string()),   
     tags: v.array(v.string()),             
   }),
+
+  submissions: defineTable({
+    userId: v.string(),
+    documentId: v.id("documents"),
+    taskId: v.string(),
+    code: v.string(),
+    language: v.string(),
+    score: v.number(),
+    passed: v.boolean(),
+    testResults: v.array(v.any()),
+    submittedAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_document", ["documentId"])
+    .index("by_user_and_task", ["userId", "documentId", "taskId"]),
 });
 
